@@ -1,0 +1,57 @@
+title: Technology and Security
+email: arash.afshar.edu@gmail.com
+description: >- # this means to ignore newlines until "baseurl:"
+  A blog in which I keep track of my explorations in technology and security
+  and share them. I will occasionally share my non-technical hobbies as well!
+baseurl: "/"
+url: "https://arash-afshar.github.io/"
+twitter_username: _aafshar_
+github_username:  arash-afshar
+minimal_mistakes_skin: dirt
+search: true
+
+# Build settings
+markdown: kramdown
+remote_theme: "mmistakes/minimal-mistakes@4.16.2"
+permalink: /:categories/:title/
+paginate: 5
+paginate_path: /page:num/
+timezone: MX
+
+include:
+  - _pages
+
+plugins:
+  - jekyll-feed
+  - jekyll-include-cache
+  - jekyll-data
+
+# Exclude from processing.
+# The following items will not be processed, by default. Create a custom list
+# to override the default setting.
+# exclude:
+#   - Gemfile
+#   - Gemfile.lock
+#   - node_modules
+#   - vendor/bundle/
+#   - vendor/cache/
+#   - vendor/gems/
+#   - vendor/ruby/
+
+author:
+  name   : "Arash Afshar"
+  avatar : "/assets/images/bio-photo.jpg"
+  bio    : "Software Engineer and Information Security researcher with a passion for photography."
+  links:
+    - label: "GitHub"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com/Arash-Afshar"
+    - label: "LinkedIn"
+      icon: "fab fa-fw fa-linkedin"
+      url: "https://www.linkedin.com/in/arash-afshar-a642893a/"
+    - label: "Twitter"
+      icon: "fab fa-fw fa-twitter-square"
+      url: "https://twitter.com/_aafshar_"
+    - label: "Stackoverflow"
+      icon: "fab fa-fw fa-stack-overflow"
+      url: "https://stackoverflow.com/users/1413326/arash"
