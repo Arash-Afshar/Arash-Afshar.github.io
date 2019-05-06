@@ -99,7 +99,7 @@ def bad_encrypt(content, password):
   m = int(content, 2)
   k = int(password, 2)
   c = m ^ k
-  print "DEBUG: Encrypting %s with %s resulting in %s" % (m, k, c)
+  print "DEBUG: Encrypting {0} with {1} resulting in {2}".format(m, k, c)
   return "{0:b}".format(c).zfill(6)
 
 bad_encrypt("101010", "100101")
