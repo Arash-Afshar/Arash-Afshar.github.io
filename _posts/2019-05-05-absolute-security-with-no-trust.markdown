@@ -2,6 +2,8 @@
 layout: single
 classes: wide
 author_profile: true
+comments: true
+share: true
 title:  "Absolute Security with No Trust"
 date:   2019-05-05 07:00:00 -0700
 tags: [security, theory]
