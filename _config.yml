@@ -46,7 +46,7 @@ analytics:
 author:
   name   : "Arash Afshar"
   avatar : "/assets/images/bio-photo.jpg"
-  bio    : "Software Engineer and Information Security researcher with a passion for photography."
+  bio    : "Software Engineer, Information Security researcher, and a hobbyist photographer."
   links:
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
