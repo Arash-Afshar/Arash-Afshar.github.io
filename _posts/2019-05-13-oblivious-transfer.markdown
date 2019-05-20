@@ -12,8 +12,8 @@ tags: [oblivious transfer, security]
 Consider a weather app that you have on your phone. For most users, this app records the current GPS
 location, sends it to a server and receives and displays the temperature of the user's location.
 This means that if the server chooses to, it can create a profile of the user location history and
-track their movement which is a breach of privacy for most users. Therefore, a privacy aware user
-might want to obtain the weather information without sharing their location. Lets call this *User
+track their movement which is a breach of privacy for most users. Therefore, a privacy-aware user
+might want to obtain weather information without sharing their location. Let's call this *User
 Security Property*.
 
 Designing an application that satisfies this security property is very easy. In fixed intervals, the
@@ -27,7 +27,7 @@ location. Unfortunately, this approach has two main problems.
    business that the server is running.
 
 Therefore, we are interested in a solution that is fast and efficient enough to be used in practice
-(this is a very subjective criteria and depends on the use case). We are also interested in a
+(this is a very subjective criterion and depends on the use case). We are also interested in a
 solution that protects the privacy of the server and only sends the temperature of the city that the
 user has asked for. Let's call this *Server Security Property*.
 
@@ -43,7 +43,7 @@ the user.
 [Oblivious Transfer][ot] can help with achieving this goal. To describe Oblivious Transfer (OT),
 we first consider a simple case where the server only holds the weather information about **two**
 cites and the user chooses one of those cities. This case is called *1-out-of-2 OT*. In what
-follows, I'll described theory and some code snippets and then describe how to extend it to more
+follows, I'll describe the theory and some code snippets and then describe how to extend it to more
 than two cities.
 
 Theory
@@ -100,11 +100,11 @@ purposes assume `Hash` is `SHA1` and `Encrypt/Decrypt` is a symmetric key encryp
 Does the Protocol Work?
 -----------------------
 
-To show that this protocol is doing what it claims, let's follow it with an example. In this example
+To show that this protocol is doing what it claims, let's follow it with an example. In this example,
 we use the same group Z<sub>11</sub> and with `g=2` as its generator. Also, assume that `a=4` is
 [chosen uniformly at random][xkcd] and similarly, `b=7` is chosen uniformly at random. The following
 code computes the steps required for the user to obtain k and for the server to obtain k<sub>0</sub>
-and k<sub>1</sub>. You will notice that if user sets `c=0`, then k will be the same as k<sub>0</sub>
+and k<sub>1</sub>. You will notice that if the user sets `c=0`, then k will be the same as k<sub>0</sub>
 and if the user sets `c=1`, then k will be equal to k<sub>1</sub>. Therefore, the user can either
 decrypt e<sub>0</sub> or e<sub>1</sub> based on their choice, but they CANNOT decrypt both.
 
@@ -177,28 +177,30 @@ From the above arguments, we have identified that to satisfy *User Security Prop
 implementation must be configured such that it satisfies the following requirements.
 
 - The implementation must generate `b` using secure random every time.
-- The implementation must use a cyclic group with very large size to prohibit the brute-force attack.
+- The implementation must use a cyclic group with a very large size to prohibit the brute-force attack.
 
 Now, are these arguments enough to prove security and more importantly, is the approach that we have
 taken so far a good approach for proving security? The above arguments are informal and are not
-accurate. For example, we have not defined the "large enough" size for cyclic group, nor have have
+accurate. For example, we have not defined the "large enough" size for the cyclic group, nor have we
 defined the "hardness" property of the discrete logarithm in the cyclic group. Moreover, we have
 described the random number generator as "secure" without specifying what it means. Nevertheless,
 this approach towards proving the security is a correct approach and it is how real proofs look
-like. I will write about the proof model in separate post, in the meantime you can read about them
-in a concise [tutorial by Yehuda Lindell][simulation-proof], or get a more in depth knowledge by
-reading the wonderful books by Oded Goldreich, Foundations of Cryptography, Vol I and II.
+like. Namely, going over each message that a party receives and proving that the message leaks no
+information about the private input of the parties. I will write about the proof model in a separate
+post, in the meantime, you can read about them in a concise [tutorial by Yehuda
+Lindell][simulation-proof], or get a more in-depth knowledge by reading the wonderful books by Oded
+Goldreich, Foundations of Cryptography, Vol I and II.
 
 
 Back to the Application
 =======================
 
-We started with goal of creating a weather reporting service that preserves the privacy of the user
+We started with the goal of creating a weather reporting service that preserves the privacy of the user
 and the server and introduced Oblivious Transfer (OT) as a potential solution. We then showed how an
 OT protocol can be designed for the case where the server has only two city temperatures and the
-user chooses of of them (1-out-of-2 OT). Now, we want to extend this to a 1-out-of-n OT for some
+user chooses one of them (1-out-of-2 OT). Now, we want to **extend** this to a 1-out-of-n OT for some
 large n. A naive approach is to create a network of 1-out-of-2 OT, where each pair of initial
-temperatures are are fed to an OT and then create another layer of OTs such the the output of each
+temperatures are fed to an OT and then create another layer of OTs such the output of each
 pair of OTs from the first layer is fed to an OT in the second layer and so on. This forms a binary
 tree and requires approximately n OTs. There are much faster [solutions][batch-ot] which can achieve
 this with a constant number of 1-out-2 OTs.
@@ -215,7 +217,7 @@ more things that one need to take into account. For example, on preserving the p
 note that the user's location can be found (or at least estimated) through the source IP or network
 delays. Moreover, based on the frequency of the weather checks and the requests to the server, the
 server can guess whether the user is traveling on the road or not. Nevertheless, using a secure
-protocol is far better that an non-secure one.
+protocol is far better than a non-secure one.
 
 
 
