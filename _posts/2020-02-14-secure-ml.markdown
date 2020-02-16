@@ -1,0 +1,111 @@
+---
+layout: single
+classes: wide
+author_profile: false
+comments: false
+share: true
+title:  "Secure Machine Learning"
+date:   2020-02-14 07:00:00 -0700
+tags: [security, practical]
+---
+
+In previous posts ([Zero Trust][ZT], [MPC-1][MPC-1]), I described the importance of Secure Multiparty Computation
+and showed a simple use case for it, a secure weather application. In this post, I want to skip ahead to a far
+more advanced application to showcase the amazing things that one can do given the exisitng tools and libraries.
+More specifically, I will talk about secure machine learning. I will use a popular service such as Grammarly
+as an example and will described how one can approach implementing a more secure version of it.
+
+
+Grammarly can be installed as a browser plugin, it will montior the text that you type in any website and will find
+grammatical mistakes. It will then offer you fixes for those mistakes. It is a great product but, for their product to work,
+they need to collect all the content that you type and analyze them (see their [privacy policy][grammarly]). I am NOT
+accusing them of any bad intention, but the simple fact that they need to collect what I type means that I cannot use it for
+anything related to my work (writing emails, describing architectures, etc) which is the main usecase of their
+service for me. Therefore, I am in a situation where I have a need for such a product, but my privacy requirements
+prevent me from using it. Now
+the question is, is it possible to create such a product that satisfies my privacy requiremnts? I believe the
+answer is yes and I will describe the steps and tools that are needed in this post.
+
+
+Broadly speaking, products such as Grammarly are backed by a Machine Learning (ML) _model_. This model needs to be
+trained on a huge dataset and constantly kept updated with new data. Once a model is trained, the model will be
+deployed and used to respond to queries from the users. Therefore, to implement a secure verion of this
+service, at the very least we need to secure each of these steps.
+
+1. Secure Training: In the training phase, the data must be kept private
+2. Secure Model: The resulting trained model must not reveal anything about the private data
+3. Secure Querying: When querying the model, the query data must be private
+
+
+Secure Training
+===============
+
+In the training phase, one or more parties have private data. In most cases, these
+data owners do not have the computational power to run the training and therefore, they will outsource their
+data to a "cloud". Thus, the goal is to make sure that the "cloud" does not learn the private input. Moreover,
+the cloud should be able to perform computation on those private data. This is a great use case for Secure Multiparty
+Computation. The current state-of-the-art papers ([ABY3][aby3], [SecureNN][securenn]) propose a 3-party setting. In
+this setting many data owners will outsource their data to these parties (think of them as three "clouds") and these 
+parties will run the MPC protocls on behalf of the data owners. The **important assumption** here is that these parties
+are non-colluding.
+
+If you are not interested in reading the papers and implementing them yourself, you can check out the great work
+done by the folks at [Dropout Labs][dropout]. They are working an a secure version of Tensorflow,
+called [tf-encrypted][tf-encrypted] which implements the above papers in addition to the [SPDZ][spdz]
+protocol.
+
+If you want to implement the protocols yourself, you can checkout the [MPC-SoK][sok] repository. Marcella Hastings, et al
+have done an amazing job of collectiong, compiling, documenting, and comparing most of the existing MPC frameworks.
+
+
+Secure Model
+============
+
+
+From the above, we have a model that has been computed in a secure manner and is shared between three non-colluding parties. But
+that is not enough! A model that is trained in this fashion can still leak information. An example of an attack
+that can reveal information about the private inputs from the model is "Model Inversion" attack
+(e.g., [Secret Sharer][secret-sharer]). Assume Alice is a data owner and one of the inputs she has sent to cloud has
+this format: "Alice A, credit card number: 1234-5678". Now the attacker can start a brute-force attack by querying
+the model with "Alice A, credit card number: XXX-XXX" where XXX-XXX is brute-forced. In other applications, this
+would be even worse. Consider an attacker that types "Alice A, credit card number: 123-" and the model auto-completes
+the rest of the credit card number for the attacker!
+
+There are different techinques to defend against this kind of attack, including sanitizing the data, anonymizing the
+data, or using techniques such as [Differential Privacy][dp] (DP).
+
+
+Secure Querying
+===============
+
+
+Given a secure training phase and assuming that the model itself does not leak any information, we can focus on
+the deployment. In terms of security of the implementation, this is very similar to the training phase in that MPC can be
+used to ensure the priavcy of the query data.
+
+
+Final Words
+--------------
+
+Of course, as I have mentioned in my [previous post][ZT], having the theoretical solution is not enough and there
+many more more things that need to be considered before such an application can be ready for secure production use.
+
+
+I encourage you to checkout the tutorials on [tf-encrypted with keras and DP][tut1] and [PySyft][pysyft] for a
+more hands-on experience.
+
+
+
+[MPC-1]: http://arash-afshar.github.io/oblivious-transfer/
+[ZT]: http://arash-afshar.github.io/absolute-security-with-no-trust/
+[grammarly]: https://www.grammarly.com/privacy-policy
+[aby3]: https://eprint.iacr.org/2018/403.pdf
+[securenn]: https://eprint.iacr.org/2018/442.pdf
+[spdz]: https://bristolcrypto.blogspot.com/2016/10/what-is-spdz-part-1-mpc-circuit.html
+[sok]: https://github.com/MPC-SoK/frameworks
+[secret-sharer]: https://arxiv.org/pdf/1802.08232.pdf
+[dp]: https://en.wikipedia.org/wiki/Differential_privacy
+[dropout]: https://dropoutlabs.com/
+[tut1]: https://github.com/tf-encrypted/tf-encrypted/tree/master/examples/notebooks/keras-classification
+[pysyft]: https://github.com/OpenMined/PySyft/tree/dev/examples/tutorials
+[tf-encrypted]: https://tf-encrypted.io/
