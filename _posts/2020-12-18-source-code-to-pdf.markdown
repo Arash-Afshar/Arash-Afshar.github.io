@@ -38,5 +38,5 @@ pygmentize -l go -f html -O full,style=emacs single_file.go > single_file.html &
 ls single_file.pdf
 ```
 
-[pygments][https://pygments.org]
+[pygments]: https://pygments.org
 
