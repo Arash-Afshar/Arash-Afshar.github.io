@@ -1,9 +1,3 @@
----
-layout: single
-title: About
-permalink: /about/
----
-
 I am a Senior Cryptography Engineer at [Polymath](http://polymath.network/).
 Previously, I was a Team Lead at [Cisco](https://www.cisco.com/c/en_ca/products/security/amp-for-endpoints/index.html).
 

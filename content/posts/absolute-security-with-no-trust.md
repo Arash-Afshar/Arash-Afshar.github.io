@@ -1,21 +1,10 @@
----
-layout: single
-classes: wide
-author_profile: true
-comments: true
-share: true
-title:  "Absolute Security with No Trust"
-date:   2019-05-05 07:00:00 -0700
-tags: [security, theory]
----
-
 Designing and implementing secure software solutions usually involves a discussion about the level
 of security and the effort and cost of achieving that level of security. The cost and effort are a
 function of the upfront cost of development, time to market, and the cost of fixing the security
 problem when they are exploited. Depending on the product, the company, and the severity of the
 problem, the later cost could also involve regaining the trust of the customers (e.g., numerous
-security breaches of [Facebook][facebook]) or losing a significant part of the business as in the
-case of [VFEmail][vfemail]. Based on the risk tolerance and other factors, software products fall
+security breaches of [Facebook](https://techcrunch.com/2018/09/28/everything-you-need-to-know-about-facebooks-data-breach-affecting-50m-users/)) or losing a significant part of the business as in the
+case of [VFEmail](https://krebsonsecurity.com/2019/02/email-provider-vfemail-suffers-catastrophic-hack/). Based on the risk tolerance and other factors, software products fall
 somewhere in the following spectrum of security.
 
 - No security! It is fast, easy, and cheap to develop but carries significant risk and will require
@@ -35,16 +24,15 @@ Let's start with a simple example to demonstrate if absolute security is achieva
 example, we have a `client` which wants to encrypt the a `secret file` and outsource it to a `cloud`
 for storage such that the cloud can never find the content of the file.
 
-
 Theory
 ------
 
 You can achieve information-theoretic security by using a simple `XOR` function. Consider the case
 where the content of the `secret file` is a binary string `101010`. Now assume the client has picked
 a password which is also a binary string, say `100101`. The client XORs the file content with the
-password (using the following function) and sends the result to the cloud. 
+password (using the following function) and sends the result to the cloud.
 
-{% highlight python %}
+```python
 def encrypt(content, password):
   m = int(content, 2)
   k = int(password, 2)
@@ -53,7 +41,7 @@ def encrypt(content, password):
 
 encrypt("101010", "100101")
 #=> prints '001111'
-{% endhighlight %}
+```
 
 *Why is this way of encryption secure?* Assume you are the cloud and you have received `001111` from
 the client. Also assume that you have unlimited CPU and memory and you decide to try all possible
@@ -61,7 +49,7 @@ passwords (i.e., perform a brute-force attack) to find the content of the secret
 that the message is 6 characters long and therefore you try all the passwords between `000000` to
 `111111` using the following function.
 
-{% highlight python %}
+```python
 def brute_force(secret):
   c = int(secret, 2)
   possible_results = []
@@ -72,7 +60,7 @@ def brute_force(secret):
 
 brute_force("001111")
 #=> Can you guess what it prints?
-{% endhighlight %}
+```
 
 If you run this function, you will notice that it is printing all values between `000000` and
 `111111`. In other words, it will print all the possible contents of the secret file! This means
@@ -89,12 +77,12 @@ Practice
 
 In our brute-force example, the cloud is looking for the correct answer among all the possibilities.
 An observant reader might have noticed that the content of the `secret file` is `101010` or `42` and
-of course [42 is the answer][hitchhiker]! Joking aside, this shows an attack when the attacker has
+of course [42 is the answer](https://en.wikipedia.org/wiki/The_Hitchhiker%27s_Guide_to_the_Galaxy). Joking aside, this shows an attack when the attacker has
 some knowledge about the form of the secret. Even if we do not consider this type of attack, there
 can still be problems with the implementations. For example, consider the following implementation
 of the encryption function.
 
-{% highlight python %}
+```python
 def bad_encrypt(content, password):
   m = int(content, 2)
   k = int(password, 2)
@@ -105,7 +93,7 @@ def bad_encrypt(content, password):
 bad_encrypt("101010", "100101")
 #=> prints DEBUG: Encrypting 42 with 37 resulting in 15
 #          '001111'
-{% endhighlight %}
+```
 
 hmmm, that does not look very secure! As is evident, even when using algorithms that give you
 information-theoretic security, you are still *trusting* that the developers have implemented a
@@ -131,19 +119,11 @@ in all aspects of software development and also to point out that high level of 
 cheap and in the vast majority of cases you pay it through more computation or more memory/network
 usage. The solution is research on making theoretical approaches more efficient and to find
 reasonable compromises on practical security. In the past few decades, there have been significant
-researches that are bringing us [closer][realmpc] to an efficient and reasonable theoretical and
+researches that are bringing us [closer](https://eprint.iacr.org/2018/450.pdf) to an efficient and reasonable theoretical and
 practical security.
 
-In my PhD thesis, I have done a small part in furthering such research ([AMPR14][AMPR14],
-[AHMR15][AHMR15], [AMR17][AMR17]) in the field of "Secure Multiparty Computation" and I believe it
+In my PhD thesis, I have done a small part in furthering such research ([AMPR14](https://link.springer.com/content/pdf/10.1007/978-3-642-55220-5_22.pdf),
+[AHMR15](https://link.springer.com/content/pdf/10.1007/978-3-662-46800-5_27.pdf), [AMR17](https://eprint.iacr.org/2017/062.pdf)) in the field of "Secure Multiparty Computation" and I believe it
 is one the most promising fields. In my future blog posts, I will introduce this field from the point
 of view of a Software Engineer with the goal of encouraging other Software Engineers to adapt and
 use the results of the amazing research that is being done in this field.
-
-[facebook]: https://techcrunch.com/2018/09/28/everything-you-need-to-know-about-facebooks-data-breach-affecting-50m-users/
-[vfemail]: https://krebsonsecurity.com/2019/02/email-provider-vfemail-suffers-catastrophic-hack/
-[hitchhiker]: https://en.wikipedia.org/wiki/The_Hitchhiker%27s_Guide_to_the_Galaxy 
-[AMPR14]: https://link.springer.com/content/pdf/10.1007/978-3-642-55220-5_22.pdf
-[AHMR15]: https://link.springer.com/content/pdf/10.1007/978-3-662-46800-5_27.pdf
-[AMR17]: https://eprint.iacr.org/2017/062.pdf
-[realmpc]: https://eprint.iacr.org/2018/450.pdf

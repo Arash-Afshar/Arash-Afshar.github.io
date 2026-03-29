@@ -1,0 +1,53 @@
+{
+  "posts": [
+    {
+      "slug": "source-code-to-pdf",
+      "title": "Source code to pdf",
+      "date": "2020-12-18T22:00:00-07:00",
+      "tags": ["cli"],
+      "summary": "A small command-line recipe for turning source trees into highlighted PDF documents.",
+      "description": "A compact walkthrough for concatenating code, highlighting it with Pygments, and exporting a PDF.",
+      "url": "/blog/source-code-to-pdf/",
+      "contentPath": "/content/posts/source-code-to-pdf.md"
+    },
+    {
+      "slug": "secure-ml",
+      "title": "Secure Machine Learning",
+      "date": "2020-02-14T07:00:00-07:00",
+      "tags": ["security", "practical"],
+      "summary": "An overview of how secure multiparty computation and privacy techniques can be applied to machine learning systems.",
+      "description": "A post about secure training, secure models, and secure querying for privacy-preserving machine learning.",
+      "url": "/blog/secure-ml/",
+      "contentPath": "/content/posts/secure-ml.md"
+    },
+    {
+      "slug": "oblivious-transfer",
+      "title": "MPC Part 1: Oblivious Transfer",
+      "date": "2019-05-13T10:00:00-07:00",
+      "tags": ["oblivious transfer", "security"],
+      "summary": "A practical introduction to oblivious transfer through a privacy-preserving weather application.",
+      "description": "An introduction to oblivious transfer with examples, code snippets, and a motivating application.",
+      "url": "/blog/oblivious-transfer/",
+      "contentPath": "/content/posts/oblivious-transfer.md"
+    },
+    {
+      "slug": "absolute-security-with-no-trust",
+      "title": "Absolute Security with No Trust",
+      "date": "2019-05-05T07:00:00-07:00",
+      "tags": ["security", "theory"],
+      "summary": "A discussion of information-theoretic security and the practical trade-offs behind absolute security claims.",
+      "description": "A post about the promise and limits of absolute security without trusting third parties.",
+      "url": "/blog/absolute-security-with-no-trust/",
+      "contentPath": "/content/posts/absolute-security-with-no-trust.md"
+    }
+  ],
+  "pages": [
+    {
+      "id": "about",
+      "title": "About",
+      "description": "Background information about Arash Afshar and the focus of this site.",
+      "url": "/about/",
+      "contentPath": "/content/pages/about.md"
+    }
+  ]
+}

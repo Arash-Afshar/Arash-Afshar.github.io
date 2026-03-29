@@ -1,14 +1,3 @@
----
-layout: single
-classes: wide
-author_profile: true
-comments: true
-share: true
-title:  "MPC Part 1: Oblivious Transfer"
-date:   2019-05-13 10:00:00 -0700
-tags: [oblivious transfer, security]
----
-
 Consider a weather app that you have on your phone. For most users, this app records the current GPS
 location, sends it to a server and receives and displays the temperature of the user's location.
 This means that if the server chooses to, it can create a profile of the user location history and
@@ -37,10 +26,9 @@ would like to offer this functionality such that the *User Security Property* an
 Property* are satisfied and that the solution is more efficient than sending all the server data to
 the user.
 
-{: .center-image}
 ![requirements.png](/assets/ot_requirements.png)
 
-[Oblivious Transfer][ot] can help with achieving this goal. To describe Oblivious Transfer (OT),
+[Oblivious Transfer](https://crypto.stanford.edu/pbc/notes/crypto/ot.html) can help with achieving this goal. To describe Oblivious Transfer (OT),
 we first consider a simple case where the server only holds the weather information about **two**
 cites and the user chooses one of those cities. This case is called *1-out-of-2 OT*. In what
 follows, I'll describe the theory and some code snippets and then describe how to extend it to more
@@ -50,11 +38,10 @@ Theory
 ======
 
 One of the simplest OTs (specially if you know Diffie-Hellman key exchange protocol) is proposed by
-[Chou, Orlandi 2015][CO15]. The overall protocol is shown in the figure below. But it is not
+[Chou, Orlandi 2015](https://eprint.iacr.org/2015/267.pdf). The overall protocol is shown in the figure below. But it is not
 immediately clear what is happening there and what are `a`, `b`, `g`, `Hash`,`Encrypt`, and
 `Decrypt`.
 
-{: .center-image}
 ![simple_ot.png](/assets/simple_ot.png)
 
 What is `g`?
@@ -69,7 +56,7 @@ starting from 2 and keep multiplying it by 2. In other words
 
 To see it for yourself, run the following program.
 
-{% highlight python %}
+```python
 def generate_group(g, p):
   # Using list to show that there are not duplications
   members = list()
@@ -79,8 +66,7 @@ def generate_group(g, p):
 
 generate_group(2, 11)
 # => prints [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-{% endhighlight %}
-
+```
 
 What are `a` and `b`?
 ---------------------
@@ -88,7 +74,6 @@ What are `a` and `b`?
 `a` and `b` are two integers that are selected at random from the Z<sub>11</sub>. Note that both of
 these values appear as the exponents of `g` and therefore g<sup>a</sup> and g<sup>b</sup> result in a
 member of the cyclic group.
-
 
 What are `Hash` and `Encrypt/Decrypt`?
 --------------------------------------
@@ -102,13 +87,13 @@ Does the Protocol Work?
 
 To show that this protocol is doing what it claims, let's follow it with an example. In this example,
 we use the same group Z<sub>11</sub> and with `g=2` as its generator. Also, assume that `a=4` is
-[chosen uniformly at random][xkcd] and similarly, `b=7` is chosen uniformly at random. The following
+[chosen uniformly at random](https://xkcd.com/221/) and similarly, `b=7` is chosen uniformly at random. The following
 code computes the steps required for the user to obtain k and for the server to obtain k<sub>0</sub>
 and k<sub>1</sub>. You will notice that if the user sets `c=0`, then k will be the same as k<sub>0</sub>
 and if the user sets `c=1`, then k will be equal to k<sub>1</sub>. Therefore, the user can either
 decrypt e<sub>0</sub> or e<sub>1</sub> based on their choice, but they CANNOT decrypt both.
 
-{% highlight python %}
+```python
 # multiplies x to the inverse of y
 def div(x, y, p):
   xp = x % p
@@ -136,13 +121,11 @@ examine_case_c_0(2, 4, 7, 11)
 
 examine_case_c_1(2, 4, 7, 11)
 # => (3, 5, 3, True)
-{% endhighlight %}
-
+```
 
 So far, we have _demonstrated_ that the protocol is correct. To actually _prove_ its correctness,
 you can just write down the formulas and go through the math. Next, we will talk about the security
 of the protocol and try to argue that it satisfies both of the security requirements.
-
 
 Is the Protocol Secure?
 ---------------------------
@@ -171,7 +154,7 @@ the user has chosen city<sub>0</sub>. We (the server) can perform this attack in
 
 We can also make the same kind of arguments about the requirements for satisfying *Server Security Property*
 which I leave for you to explore and think about. In particular, I encourage you to read about the
-hardness property of the [discrete logarithm problem][dlog] and how it relates to Diffie-Hellman problem.
+hardness property of the [discrete logarithm problem](https://crypto.stanford.edu/pbc/notes/crypto/factoring.html) and how it relates to Diffie-Hellman problem.
 
 From the above arguments, we have identified that to satisfy *User Security Property*, the protocol
 implementation must be configured such that it satisfies the following requirements.
@@ -187,10 +170,8 @@ described the random number generator as "secure" without specifying what it mea
 this approach towards proving the security is a correct approach and it is how real proofs look
 like. Namely, going over each message that a party receives and proving that the message leaks no
 information about the private input of the parties. I will write about the proof model in a separate
-post, in the meantime, you can read about them in a concise [tutorial by Yehuda
-Lindell][simulation-proof], or get a more in-depth knowledge by reading the wonderful books by Oded
+post, in the meantime, you can read about them in a concise [tutorial by Yehuda Lindell](https://eprint.iacr.org/2016/046.pdf), or get a more in-depth knowledge by reading the wonderful books by Oded
 Goldreich, Foundations of Cryptography, Vol I and II.
-
 
 Back to the Application
 =======================
@@ -202,12 +183,11 @@ user chooses one of them (1-out-of-2 OT). Now, we want to **extend** this to a 1
 large n. A naive approach is to create a network of 1-out-of-2 OT, where each pair of initial
 temperatures are fed to an OT and then create another layer of OTs such the output of each
 pair of OTs from the first layer is fed to an OT in the second layer and so on. This forms a binary
-tree and requires approximately n OTs. There are much faster [solutions][batch-ot] which can achieve
+tree and requires approximately n OTs. There are much faster [solutions](https://eprint.iacr.org/2016/799.pdf) which can achieve
 this with a constant number of 1-out-2 OTs.
 
-At last, the following code shows an implementation of this application using [libOTe][libOTe]. You
-can find a docker file which sets up and runs this program on [my repo][example].
-
+At last, the following code shows an implementation of this application using [libOTe](https://github.com/osu-crypto/libOTe). You
+can find a docker file which sets up and runs this program on [my repo](https://github.com/Arash-Afshar/secure_multiparty_computation_examples/blob/master/weather_app_with_ot).
 
 Final Remarks
 =============
@@ -218,14 +198,3 @@ note that the user's location can be found (or at least estimated) through the s
 delays. Moreover, based on the frequency of the weather checks and the requests to the server, the
 server can guess whether the user is traveling on the road or not. Nevertheless, using a secure
 protocol is far better than a non-secure one.
-
-
-
-[CO15]: https://eprint.iacr.org/2015/267.pdf
-[xkcd]: https://xkcd.com/221/
-[dlog]: https://crypto.stanford.edu/pbc/notes/crypto/factoring.html
-[simulation-proof]: https://eprint.iacr.org/2016/046.pdf
-[batch-ot]: https://eprint.iacr.org/2016/799.pdf
-[libOTe]: https://github.com/osu-crypto/libOTe
-[example]: https://github.com/Arash-Afshar/secure_multiparty_computation_examples/blob/master/weather_app_with_ot
-[ot]: https://crypto.stanford.edu/pbc/notes/crypto/ot.html
