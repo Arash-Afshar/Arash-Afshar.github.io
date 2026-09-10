@@ -12,7 +12,8 @@ const SITE_CONFIG = {
     { label: "Stack Overflow", href: "https://stackoverflow.com/users/1413326/arash" },
   ],
   nav: [
-    { label: "Blog", href: "/blog/" },
+    { label: "Home", href: "/" },
+    { label: "Blogs", href: "/blog/" },
     { label: "About", href: "/about/" },
   ],
 };
@@ -48,7 +49,7 @@ function buildHeader() {
     .join("");
 
   header.innerHTML = `
-    <a class="brand" href="/blog/">
+    <a class="brand" href="/">
       <span class="brand-copy">
         <span class="brand-title">${SITE_CONFIG.title}</span>
         <span class="brand-subtitle">${SITE_CONFIG.shortTitle}</span>
@@ -109,17 +110,11 @@ function buildHero() {
     return;
   }
 
-  hero.innerHTML = `
-    <p class="hero-eyebrow">${SITE_CONFIG.eyebrow}</p>
-    <h1>${SITE_CONFIG.title}</h1>
-    <p>${SITE_CONFIG.description}</p>
-    <p class="hero-byline">${SITE_CONFIG.subtitle}</p>
-    <div class="social-links">
-      ${SITE_CONFIG.socialLinks
-        .map((item) => `<a class="pill" href="${item.href}" target="_blank" rel="noreferrer">${item.label}</a>`)
-        .join("")}
-    </div>
-  `;
+  hero.innerHTML = `<p class="hero-eyebrow">Field notes / ${new Date().getFullYear()}</p><p class="blog-lede">Ideas, experiments, and notes on security, systems, and practical engineering.</p><a class="blog-home-link" href="/">← Back to the profile</a>`;
+}
+
+function renderHome() {
+  setDocumentMeta({ title: "Home", description: SITE_CONFIG.description });
 }
 
 function renderPostList(posts) {
@@ -151,7 +146,6 @@ function renderPostList(posts) {
 }
 
 async function renderBlogIndex(indexData) {
-  buildHero();
   setDocumentMeta({
     title: "Blog",
     description: SITE_CONFIG.description,
@@ -227,6 +221,12 @@ async function bootstrap() {
     const postSlug = document.body.dataset.postSlug;
     const pageId = document.body.dataset.pageId;
     const isBlogIndex = document.body.dataset.blogIndex === "true";
+    const isHome = document.body.dataset.home === "true";
+
+    if (isHome) {
+      renderHome();
+      return;
+    }
 
     if (isBlogIndex) {
       await renderBlogIndex(indexData);
