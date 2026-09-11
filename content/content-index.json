@@ -45,7 +45,7 @@
     {
       "id": "about",
       "title": "About",
-      "description": "Background information about Arash Afshar and the focus of this site.",
+      "description": "",
       "url": "/about/",
       "contentPath": "/content/pages/about.md"
     }

@@ -231,17 +231,23 @@ async function bootstrap() {
   buildHeader();
   buildFooter();
 
+  const postSlug = document.body.dataset.postSlug;
+  const pageId = document.body.dataset.pageId;
+  const isBlogIndex = document.body.dataset.blogIndex === "true";
+  const isHome = document.body.dataset.home === "true";
+  const needsContentIndex = isBlogIndex || Boolean(postSlug) || Boolean(pageId);
+
+  if (isHome) {
+    renderHome();
+    return;
+  }
+
+  if (!needsContentIndex) {
+    return;
+  }
+
   try {
     const indexData = await loadContentIndex();
-    const postSlug = document.body.dataset.postSlug;
-    const pageId = document.body.dataset.pageId;
-    const isBlogIndex = document.body.dataset.blogIndex === "true";
-    const isHome = document.body.dataset.home === "true";
-
-    if (isHome) {
-      renderHome();
-      return;
-    }
 
     if (isBlogIndex) {
       await renderBlogIndex(indexData);
