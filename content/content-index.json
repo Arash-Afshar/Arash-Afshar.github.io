@@ -1,6 +1,16 @@
 {
   "posts": [
     {
+      "slug": "wots",
+      "title": "WOTS hash chains",
+      "date": "2026-09-24T18:00:00-06:00",
+      "tags": ["post-quantum", "signatures", "interactive"],
+      "summary": "An interactive look at one real SHRINCS WOTS hash chain, with step-by-step traces and in-browser self-tests.",
+      "description": "An interactive look at one SHRINCS WOTS hash chain: real SHA-256, ADRS, F/PRF, and a step-by-step execution trace.",
+      "url": "/blog/wots/",
+      "contentPath": "/content/posts/wots.md"
+    },
+    {
       "slug": "source-code-to-pdf",
       "title": "Source code to pdf",
       "date": "2020-12-18T22:00:00-07:00",

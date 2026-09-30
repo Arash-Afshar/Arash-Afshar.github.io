@@ -1,0 +1,118 @@
+{
+  "source": "Generated from SHRINCS/shrincs-bip impl/shrincs.py",
+  "pkSeed": "000102030405060708090a0b0c0d0e0f",
+  "skSeed": "101112131415161718191a1b1c1d1e1f",
+  "node0": "202122232425262728292a2b2c2d2e2f",
+  "sha256Empty": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sha256Abc": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+  "base2bInput": "ffeeddccbbaa99887766554433221100",
+  "base2bDigits4x32": [
+    15,
+    15,
+    14,
+    14,
+    13,
+    13,
+    12,
+    12,
+    11,
+    11,
+    10,
+    10,
+    9,
+    9,
+    8,
+    8,
+    7,
+    7,
+    6,
+    6,
+    5,
+    5,
+    4,
+    4,
+    3,
+    3,
+    2,
+    2,
+    1,
+    1,
+    0,
+    0
+  ],
+  "fTw": {
+    "adrs": "00000000000000000000000000070000000300000000",
+    "out": "ed17b8ee431a7424239892712ea19af0"
+  },
+  "fTwHi5": {
+    "adrs": "00000000000000000000000000070000000300000005",
+    "out": "954217cbcb56d829076309ab13ac3448"
+  },
+  "prfTw": {
+    "adrs": "00000000000000000005000000070000000300000000",
+    "out": "183e101ba6581a548866c85397b03c9a"
+  },
+  "chainTwNodes": [
+    "183e101ba6581a548866c85397b03c9a",
+    "40b08ba5f173a928c487f841c9f8c0e7",
+    "a6678f464d7656053ca146c603e8cdc4",
+    "6271088f6ec5423aa37b5a54697f56b5",
+    "b46a38233c1e531320e6a9f69feeaa22",
+    "7d0cd124f9633b188746ec788ba2e6f5",
+    "8a316aa188b202affcfe1e73d359a0c9",
+    "f87ab15122ab55f55fe9fe0ae8fd293c",
+    "d1f9f3f3f8c83024bb8f3dd30aa3deb3",
+    "cb98ff99d84b6f34d5c3eb46f89ab39c",
+    "39f043c68be2253ce64cc20f150ee062",
+    "24e17da6dfb6e938f86dfdd9d62e74de",
+    "2762c2688abe6ed6b1ea3dab8b7f32f5",
+    "c1edc2a8dbc9cc7d98de1aa8c12cdbc5",
+    "18557ab27057920eb30a8ef9beac44f6",
+    "13ddbe3ac277d0ef7d9c5d1909210a24"
+  ],
+  "chainTwEndpoint": "13ddbe3ac277d0ef7d9c5d1909210a24",
+  "chainTwZeroSteps": "183e101ba6581a548866c85397b03c9a",
+  "chainTwPartial3to7": "f87ab15122ab55f55fe9fe0ae8fd293c",
+  "tSl": {
+    "adrs": "00000000000000000001000000070000000000000000",
+    "out": "d01437bf87029eb7568743f6d24b4122"
+  },
+  "fSf": {
+    "adrs": "05000000000000002a10000000000000000b00000002",
+    "out": "f3804331ec60fc2b43d28070da8999dd"
+  },
+  "hGrind": {
+    "adrs": "05000000000000002a16000000000000000000000000",
+    "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "counter": 37,
+    "out": "65e38d717572a0ac797ee4f2c93089dc"
+  },
+  "tSf": {
+    "adrs": "05000000000000002a11000000000000000000000000",
+    "out": "5abe0615a2d9d6734b9f0faea93ef03e"
+  },
+  "prfSf": {
+    "adrs": "05000000000000002a15000400000000000b00000000",
+    "out": "4e0e9d0a9fafba1bd2439830fbb5f0d6"
+  },
+  "chainSfNodes": [
+    "4e0e9d0a9fafba1bd2439830fbb5f0d6",
+    "3f042f3284c6618a6e71578751e66f9b",
+    "a852766c64b87a7207615ff0f238f052",
+    "60ed1100bdbc2472f62207773a11757b",
+    "cac6009592b427f7abf174111527fa30",
+    "08719bad455299a98f38f04e3704b0f5",
+    "a4facec87267ac3cf006b128cf8b2837",
+    "59544bd686368bdf84033e430c34ca56",
+    "6aa4834a4646787a284a680180d5d927",
+    "ee4e0d8662c19f6f0aaa5eadbb728b3a",
+    "c591d9b43e14e27ddb39997d61087dc4",
+    "9e860e203b11cc47815a0f9e1b3d953d",
+    "4ddb863242de78c1b5815644f7dfae8a",
+    "f4e10faf0a835466760cf55bdd749152",
+    "e62844de5df979ae75275ba8ee473d63",
+    "2cd3eea6839b33251bcfc11ba50a3813"
+  ],
+  "chainSfEndpoint": "2cd3eea6839b33251bcfc11ba50a3813",
+  "chainSfAdrsAfterClear": "05000000000000002a15000000000000000b00000000"
+}

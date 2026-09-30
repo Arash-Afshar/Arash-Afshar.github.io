@@ -1,0 +1,939 @@
+/* WOTS visualizer — site-themed, full 35×16 overview */
+
+.wots-demo {
+  --wots-surface: var(--surface, #2c2c2c);
+  --wots-border: var(--border, #463d31);
+  --wots-text: var(--text, #c2c2b0);
+  --wots-muted: var(--muted, #8a8a7e);
+  --wots-faint: var(--faint, #666666);
+  --wots-accent: var(--accent, #78824b);
+  --wots-warm: var(--warm, #c9a554);
+  --wots-code: var(--code-bg, #191919);
+  --wots-ok: #5f875f;
+  --wots-err: #bb7744;
+  --wots-node: 12px;
+  --wots-gap: 4px;
+  font-family: var(--font-body, "JetBrainsMono Nerd Font", ui-monospace, monospace);
+  color: var(--wots-text);
+}
+
+.wots-demo h1 {
+  margin: 0 0 0.4rem;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: var(--wots-warm);
+  letter-spacing: -0.04em;
+}
+
+.wots-demo .lede {
+  margin: 0 0 1.25rem;
+  max-width: 62ch;
+  color: var(--wots-muted);
+  font-size: 0.95rem;
+}
+
+.wots-panel {
+  background: var(--wots-surface);
+  border: 1px solid var(--wots-border);
+  border-radius: 12px;
+  padding: 1.1rem 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.wots-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  margin-bottom: 0.9rem;
+}
+
+.wots-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--wots-muted);
+  font-size: 0.8rem;
+}
+
+.wots-controls input[type="number"] {
+  width: 4.5rem;
+  padding: 0.35rem 0.45rem;
+  border: 1px solid var(--wots-border);
+  border-radius: 6px;
+  background: var(--wots-code);
+  color: var(--wots-text);
+}
+
+.wots-controls button {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--wots-border);
+  border-radius: 8px;
+  background: rgba(120, 130, 75, 0.18);
+  color: var(--wots-text);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.wots-controls button:hover:not(:disabled) {
+  border-color: var(--wots-warm);
+  color: var(--wots-warm);
+}
+
+.wots-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#status {
+  margin: 0 0 0.8rem;
+  font-size: 0.82rem;
+  color: var(--wots-muted);
+}
+
+#status[data-kind="ok"] {
+  color: var(--wots-ok);
+}
+
+#status[data-kind="error"] {
+  color: var(--wots-err);
+}
+
+#status[data-kind="busy"] {
+  color: var(--wots-warm);
+}
+
+.chain-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-bottom: 0.85rem;
+  font-size: 0.78rem;
+  color: var(--wots-muted);
+}
+
+/* —— Overview: 35 × 16 —— */
+
+.wots-overview-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem 1.2rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.72rem;
+  color: var(--wots-muted);
+}
+
+.wots-overview-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.wots-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--wots-border);
+  background: var(--wots-code);
+  vertical-align: middle;
+}
+
+.wots-swatch--sig {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--wots-warm),
+    var(--wots-warm) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  border-color: var(--wots-warm);
+}
+
+.wots-swatch--public {
+  border-color: var(--wots-ok);
+  background: rgba(95, 135, 95, 0.35);
+}
+
+.wots-swatch--secret {
+  border-color: var(--wots-muted);
+  background: rgba(138, 138, 126, 0.25);
+}
+
+.wots-swatch--active {
+  border-color: var(--wots-accent);
+  box-shadow: 0 0 0 1px rgba(120, 130, 75, 0.55);
+}
+
+.wots-overview-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.6rem;
+  border: 1px solid var(--wots-border);
+  border-radius: 8px;
+  background: var(--wots-code);
+}
+
+.wots-overview-grid {
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  align-items: start;
+  width: max-content;
+  min-width: 100%;
+  padding: 0.55rem 0.7rem 0.45rem;
+  gap: 0;
+}
+
+.wots-pos-axis {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--wots-gap);
+  padding-right: 0.55rem;
+  margin-right: 0.35rem;
+  border-right: 1px solid var(--wots-border);
+}
+
+.wots-pos-head {
+  height: 1rem;
+}
+
+.wots-pos-sk,
+.wots-pos-foot,
+.wots-pos-pk {
+  height: 1.05rem;
+  font-size: 0.62rem;
+  color: var(--wots-faint);
+  line-height: 1.05rem;
+}
+
+.wots-pos-pk {
+  margin-top: 0.15rem;
+  color: var(--wots-ok);
+}
+
+.wots-pos-label {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: var(--wots-node);
+  font-size: 0.62rem;
+  color: var(--wots-faint);
+  line-height: 1;
+}
+
+.wots-chain-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.wots-group-label {
+  font-size: 0.62rem;
+  color: var(--wots-warm);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding-left: 1px;
+}
+
+.wots-chain-block--checksum .wots-group-label {
+  color: var(--wots-accent);
+}
+
+.wots-chain-group {
+  display: flex;
+  gap: 3px;
+}
+
+.wots-chain-divider {
+  width: 1px;
+  align-self: stretch;
+  margin: 1.25rem 0.55rem 0;
+  background: var(--wots-warm);
+  opacity: 0.85;
+}
+
+.wots-chain {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--wots-gap);
+  min-width: var(--wots-node);
+  padding: 0 1px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.wots-chain:hover,
+.wots-chain.is-selected {
+  background: rgba(120, 130, 75, 0.12);
+}
+
+.wots-chain.is-selected {
+  outline: 1px solid rgba(120, 130, 75, 0.45);
+  outline-offset: 1px;
+}
+
+.wots-chain-sk {
+  display: block;
+  height: 1.05rem;
+  font-size: 0.62rem;
+  font-style: italic;
+  color: var(--wots-muted);
+  line-height: 1.05rem;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.wots-chain-nodes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--wots-gap);
+}
+
+.wots-node {
+  width: var(--wots-node);
+  height: var(--wots-node);
+  padding: 0;
+  border: 1px solid var(--wots-border);
+  border-radius: 2px;
+  background: transparent;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.wots-node.is-secret {
+  border-color: var(--wots-muted);
+}
+
+.wots-node.is-public {
+  border-color: var(--wots-ok);
+  background: rgba(95, 135, 95, 0.28);
+}
+
+.wots-node.is-target {
+  outline: 1px dashed var(--wots-warm);
+  outline-offset: 1px;
+}
+
+.wots-node.is-computed-secret {
+  border-color: var(--wots-muted);
+  background: rgba(138, 138, 126, 0.22);
+}
+
+.wots-node.is-sig {
+  border-color: var(--wots-warm);
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(201, 165, 84, 0.85),
+    rgba(201, 165, 84, 0.85) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+.wots-node.is-active {
+  border-color: var(--wots-accent);
+  box-shadow: 0 0 0 1px rgba(120, 130, 75, 0.65);
+}
+
+.wots-chain-idx {
+  display: block;
+  height: 1rem;
+  margin-top: 0.15rem;
+  font-size: 0.58rem;
+  color: var(--wots-faint);
+  line-height: 1rem;
+  user-select: none;
+}
+
+.wots-chain-pk {
+  display: block;
+  margin-top: 0.1rem;
+  max-width: 2.8rem;
+  overflow: hidden;
+  font-size: 0.48rem;
+  color: var(--wots-ok);
+  letter-spacing: -0.04em;
+  line-height: 1rem;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.wots-chain.is-selected .wots-chain-idx {
+  color: var(--wots-accent);
+}
+
+.wots-chain.is-target-selected {
+  background: rgba(201, 165, 84, 0.06);
+}
+
+.wots-chain.is-sig-collected .wots-chain-idx {
+  color: var(--wots-warm);
+}
+
+/* —— Single-chain detail —— */
+
+.wots-detail {
+  margin-bottom: 0.75rem;
+}
+
+.wots-detail-chain {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--wots-border);
+  border-radius: 8px;
+  background: var(--wots-code);
+}
+
+.wots-detail-nodes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.wots-detail-node {
+  display: grid;
+  grid-template-columns: 1.6rem 14px 1fr;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.2rem 0.25rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--wots-text);
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.wots-detail-node:hover,
+.wots-detail-node.is-active {
+  border-color: var(--wots-accent);
+  background: rgba(120, 130, 75, 0.1);
+}
+
+.wots-detail-pos {
+  color: var(--wots-warm);
+  font-weight: 700;
+}
+
+.wots-detail-box {
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--wots-border);
+  border-radius: 2px;
+  background: transparent;
+}
+
+.wots-detail-node.is-sig .wots-detail-box {
+  border-color: var(--wots-warm);
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(201, 165, 84, 0.85),
+    rgba(201, 165, 84, 0.85) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+.wots-detail-node.is-secret .wots-detail-box {
+  border-color: var(--wots-muted);
+}
+
+.wots-detail-node.is-endpoint .wots-detail-box {
+  border-color: var(--wots-ok);
+}
+
+.wots-detail-hash {
+  color: var(--wots-muted);
+  letter-spacing: 0.02em;
+}
+
+.chain-caption {
+  margin: 0.4rem 0 0.8rem;
+  color: var(--wots-muted);
+  font-size: 0.85rem;
+  max-width: 70ch;
+}
+
+.under-hood {
+  border-top: 1px solid var(--wots-border);
+  padding-top: 0.6rem;
+}
+
+.under-hood summary {
+  cursor: pointer;
+  color: var(--wots-warm);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.under-hood-body {
+  margin-top: 0.6rem;
+  font-size: 0.78rem;
+}
+
+.under-hood-body dl {
+  display: grid;
+  grid-template-columns: 10rem 1fr;
+  gap: 0.35rem 0.75rem;
+  margin: 0.5rem 0 0;
+}
+
+.under-hood-body dt {
+  color: var(--wots-muted);
+}
+
+.under-hood-body dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.under-hood-body code,
+#seed-info code {
+  font-family: inherit;
+  font-size: 0.72rem;
+  color: var(--wots-accent);
+  background: transparent;
+  padding: 0;
+}
+
+#seed-info {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: 0.3rem 0.7rem;
+  margin: 0;
+  font-size: 0.78rem;
+}
+
+#seed-info dt {
+  color: var(--wots-muted);
+}
+
+#seed-info dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.test-list {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.78rem;
+}
+
+.test-list .pass {
+  color: var(--wots-ok);
+}
+
+.test-list .fail {
+  color: var(--wots-err);
+}
+
+.wots-note {
+  margin: 0;
+  color: var(--wots-muted);
+  font-size: 0.8rem;
+}
+
+/* —— Message + signing narration —— */
+
+.wots-message-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: end;
+  margin-bottom: 0.55rem;
+}
+
+.wots-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1 1 16rem;
+  color: var(--wots-muted);
+  font-size: 0.75rem;
+}
+
+.wots-field input {
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--wots-border);
+  border-radius: 8px;
+  background: var(--wots-code);
+  color: var(--wots-text);
+  font: inherit;
+  font-size: 0.8rem;
+}
+
+.wots-btn-quiet {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--wots-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--wots-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.wots-btn-quiet:hover {
+  color: var(--wots-warm);
+  border-color: var(--wots-warm);
+}
+
+.wots-phase-bar {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin: 0.4rem 0 0.85rem;
+}
+
+.wots-phase-chip {
+  display: block;
+  width: 100%;
+  padding: 0.45rem 0.5rem;
+  border: 1px solid var(--wots-border);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.15);
+  min-height: 3.2rem;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.wots-phase-chip:hover {
+  border-color: var(--wots-accent);
+}
+
+.wots-phase-chip.is-done {
+  border-color: rgba(120, 130, 75, 0.45);
+}
+
+.wots-phase-chip.is-current {
+  border-color: var(--wots-warm);
+  background: rgba(201, 165, 84, 0.1);
+}
+
+.wots-phase-num {
+  display: block;
+  color: var(--wots-warm);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.wots-phase-title {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--wots-muted);
+  font-size: 0.62rem;
+  line-height: 1.35;
+}
+
+.wots-phase-chip.is-current .wots-phase-title {
+  color: var(--wots-text);
+}
+
+.wots-step-card {
+  margin-bottom: 0.85rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--wots-border);
+  border-radius: 10px;
+  background: var(--wots-code);
+}
+
+.wots-step-meta {
+  color: var(--wots-faint);
+  font-size: 0.7rem;
+  margin-bottom: 0.25rem;
+}
+
+.wots-step-label {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--wots-warm);
+  font-weight: 700;
+}
+
+.wots-step-detail {
+  margin: 0.35rem 0 0;
+  color: var(--wots-muted);
+  font-size: 0.8rem;
+}
+
+.wots-mapping {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-bottom: 0.85rem;
+}
+
+.wots-mapping-row {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: 0.55rem;
+  align-items: start;
+}
+
+.wots-mapping-key {
+  color: var(--wots-muted);
+  font-size: 0.72rem;
+  padding-top: 0.15rem;
+}
+
+.wots-mapping-msg {
+  font-size: 0.72rem;
+  color: var(--wots-accent);
+  overflow-wrap: anywhere;
+}
+
+.wots-chunk-row,
+.wots-digit-row,
+.wots-csum-digits,
+.wots-sig-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.wots-chunk,
+.wots-digit,
+.wots-sig-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.15rem;
+  height: 1.25rem;
+  padding: 0 0.2rem;
+  border: 1px solid var(--wots-border);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--wots-faint);
+  font-size: 0.65rem;
+}
+
+.wots-chunk.is-on,
+.wots-digit.is-on,
+.wots-sig-cell.is-on {
+  color: var(--wots-text);
+  border-color: var(--wots-accent);
+}
+
+.wots-chunk.is-focus,
+.wots-digit.is-focus,
+.wots-sig-cell.is-focus {
+  border-color: var(--wots-warm);
+  color: var(--wots-warm);
+}
+
+.wots-checksum {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+  font-size: 0.78rem;
+  color: var(--wots-text);
+}
+
+.wots-muted {
+  color: var(--wots-muted);
+}
+
+.wots-focus {
+  margin: 0 -0.35rem 0.85rem;
+}
+
+.wots-focus-card {
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--wots-border);
+  border-radius: 10px;
+  background: var(--wots-code);
+  font-size: 0.78rem;
+}
+
+.wots-focus-card--rail {
+  width: calc(100% + 0.7rem);
+  max-width: none;
+  margin-inline: -0.35rem;
+  box-sizing: border-box;
+  min-height: 10.5rem;
+  height: 10.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.7rem 1rem;
+}
+
+.wots-focus-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.wots-pill {
+  display: inline-flex;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--wots-ok);
+  border-radius: 999px;
+  color: var(--wots-ok);
+  font-size: 0.7rem;
+}
+
+.wots-hash-rail {
+  flex: 1 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  align-items: center;
+  gap: 0.3rem 0.2rem;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0.1rem 0;
+}
+
+.wots-hash-rail--idle {
+  align-content: center;
+}
+
+.wots-rail-arrow,
+.wots-rail-gap {
+  color: var(--wots-faint);
+  font-size: 0.75rem;
+  padding: 0 0.1rem;
+  user-select: none;
+}
+
+.wots-rail-gap {
+  letter-spacing: 0.08em;
+  color: var(--wots-muted);
+}
+
+.wots-rail-step {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  justify-items: center;
+  gap: 0.08rem;
+  min-width: 3.15rem;
+  padding: 0.28rem 0.32rem;
+  border: 1px solid var(--wots-border);
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.wots-rail-step.is-ghost {
+  opacity: 0.35;
+  border-style: dashed;
+}
+
+.wots-rail-step.is-pending {
+  border-style: dashed;
+  color: var(--wots-faint);
+}
+
+.wots-rail-step.is-target {
+  border-color: var(--wots-warm);
+}
+
+.wots-rail-step.is-secret {
+  border-color: var(--wots-muted);
+  background: rgba(138, 138, 126, 0.12);
+}
+
+.wots-rail-step.is-sig {
+  border-color: var(--wots-warm);
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(201, 165, 84, 0.22),
+    rgba(201, 165, 84, 0.22) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+.wots-rail-step.is-public {
+  border-color: var(--wots-ok);
+  background: rgba(95, 135, 95, 0.16);
+}
+
+.wots-rail-step.is-focus {
+  box-shadow: 0 0 0 1px rgba(120, 130, 75, 0.7);
+  border-color: var(--wots-accent);
+}
+
+.wots-rail-pos {
+  color: var(--wots-warm);
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.wots-rail-hash {
+  color: var(--wots-accent);
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.wots-rail-step.is-secret .wots-rail-hash,
+.wots-rail-step.is-pending .wots-rail-hash,
+.wots-rail-step.is-ghost .wots-rail-hash {
+  color: var(--wots-muted);
+}
+
+.wots-rail-step.is-public .wots-rail-hash {
+  color: var(--wots-ok);
+}
+
+.wots-rail-step.is-sig .wots-rail-hash {
+  color: var(--wots-warm);
+}
+
+.wots-rail-role {
+  color: var(--wots-faint);
+  font-size: 0.58rem;
+  line-height: 1;
+}
+
+.wots-signature-panel {
+  margin-bottom: 0.9rem;
+}
+
+.wots-sig-cell {
+  min-width: 2.6rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.02em;
+}
+
+.wots-sig-full {
+  margin: 0.55rem 0 0;
+  overflow-wrap: anywhere;
+  font-size: 0.68rem;
+}
+
+.wots-sig-full code {
+  color: var(--wots-accent);
+}
+
+@media (max-width: 640px) {
+  .under-hood-body dl,
+  #seed-info {
+    grid-template-columns: 1fr;
+  }
+
+  .wots-phase-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .wots-mapping-row {
+    grid-template-columns: 1fr;
+  }
+}
