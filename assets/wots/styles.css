@@ -165,9 +165,9 @@
 }
 
 .wots-overview-scroll {
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: hidden;
-  padding-bottom: 0.4rem;
+  padding-bottom: 0.35rem;
   margin-bottom: 0.6rem;
   border: 1px solid var(--wots-border);
   border-radius: 8px;
@@ -176,12 +176,12 @@
 
 .wots-overview-grid {
   display: grid;
-  grid-template-columns: auto auto auto auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: start;
-  width: max-content;
-  min-width: 100%;
-  padding: 0.55rem 0.7rem 0.45rem;
+  width: 100%;
+  padding: 0.55rem 0.55rem 0.4rem;
   gap: 0;
+  box-sizing: border-box;
 }
 
 .wots-pos-axis {
@@ -189,8 +189,8 @@
   flex-direction: column;
   align-items: flex-end;
   gap: var(--wots-gap);
-  padding-right: 0.55rem;
-  margin-right: 0.35rem;
+  padding-right: 0.4rem;
+  margin-right: 0.25rem;
   border-right: 1px solid var(--wots-border);
 }
 
@@ -199,17 +199,11 @@
 }
 
 .wots-pos-sk,
-.wots-pos-foot,
-.wots-pos-pk {
+.wots-pos-foot {
   height: 1.05rem;
   font-size: 0.62rem;
   color: var(--wots-faint);
   line-height: 1.05rem;
-}
-
-.wots-pos-pk {
-  margin-top: 0.15rem;
-  color: var(--wots-ok);
 }
 
 .wots-pos-label {
@@ -226,6 +220,11 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  min-width: 0;
+}
+
+.wots-chain-block--message {
+  min-width: 0;
 }
 
 .wots-group-label {
@@ -235,6 +234,8 @@
   text-transform: uppercase;
   white-space: nowrap;
   padding-left: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .wots-chain-block--checksum .wots-group-label {
@@ -242,14 +243,24 @@
 }
 
 .wots-chain-group {
-  display: flex;
-  gap: 3px;
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  min-width: 0;
+}
+
+.wots-chain-group--message {
+  grid-template-columns: repeat(32, minmax(0, 1fr));
+}
+
+.wots-chain-group--checksum {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .wots-chain-divider {
   width: 1px;
   align-self: stretch;
-  margin: 1.25rem 0.55rem 0;
+  margin: 1.25rem 0.35rem 0;
   background: var(--wots-warm);
   opacity: 0.85;
 }
@@ -259,10 +270,11 @@
   flex-direction: column;
   align-items: center;
   gap: var(--wots-gap);
-  min-width: var(--wots-node);
-  padding: 0 1px;
+  min-width: 0;
+  width: 100%;
+  padding: 0;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 .wots-chain:hover,
@@ -272,13 +284,13 @@
 
 .wots-chain.is-selected {
   outline: 1px solid rgba(120, 130, 75, 0.45);
-  outline-offset: 1px;
+  outline-offset: 0;
 }
 
 .wots-chain-sk {
   display: block;
   height: 1.05rem;
-  font-size: 0.62rem;
+  font-size: 0.55rem;
   font-style: italic;
   color: var(--wots-muted);
   line-height: 1.05rem;
@@ -291,10 +303,11 @@
   flex-direction: column;
   align-items: center;
   gap: var(--wots-gap);
+  width: 100%;
 }
 
 .wots-node {
-  width: var(--wots-node);
+  width: min(100%, var(--wots-node));
   height: var(--wots-node);
   padding: 0;
   border: 1px solid var(--wots-border);
@@ -341,24 +354,16 @@
 
 .wots-chain-idx {
   display: block;
+  width: 100%;
   height: 1rem;
   margin-top: 0.15rem;
-  font-size: 0.58rem;
+  font-size: 0.48rem;
   color: var(--wots-faint);
   line-height: 1rem;
+  text-align: center;
   user-select: none;
-}
-
-.wots-chain-pk {
-  display: block;
-  margin-top: 0.1rem;
-  max-width: 2.8rem;
   overflow: hidden;
-  font-size: 0.48rem;
-  color: var(--wots-ok);
-  letter-spacing: -0.04em;
-  line-height: 1rem;
-  user-select: none;
+  text-overflow: clip;
   white-space: nowrap;
 }
 

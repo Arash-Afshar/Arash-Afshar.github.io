@@ -77,18 +77,17 @@ function buildShellHtml() {
             <span class="wots-pos-sk">pos</span>
             ${posLabels}
             <span class="wots-pos-foot">#</span>
-            <span class="wots-pos-pk">pk</span>
           </div>
           <div class="wots-chain-block wots-chain-block--message">
             <div class="wots-group-label">message 0–31</div>
-            <div class="wots-chain-group" role="list" aria-label="Message chains 0 to 31">
+            <div class="wots-chain-group wots-chain-group--message" role="list" aria-label="Message chains 0 to 31">
               ${messageCols}
             </div>
           </div>
           <div class="wots-chain-divider" role="separator" aria-label="Message / checksum boundary"></div>
           <div class="wots-chain-block wots-chain-block--checksum">
             <div class="wots-group-label">checksum 32–34</div>
-            <div class="wots-chain-group" role="list" aria-label="Checksum chains 32 to 34">
+            <div class="wots-chain-group wots-chain-group--checksum" role="list" aria-label="Checksum chains 32 to 34">
               ${checksumCols}
             </div>
           </div>
@@ -108,7 +107,6 @@ function chainColumnHtml(chainIndex) {
       <span class="wots-chain-sk">sk</span>
       <div class="wots-chain-nodes">${nodes}</div>
       <span class="wots-chain-idx">${chainIndex}</span>
-      <span class="wots-chain-pk" data-pk></span>
     </div>
   `;
 }
@@ -133,10 +131,6 @@ function updateOverview(shell, opts) {
     col.classList.toggle("is-selected", isSelected);
     col.classList.toggle("is-target-selected", isTargetSelected);
     col.classList.toggle("is-sig-collected", collected);
-
-    const pk = col.querySelector("[data-pk]");
-    pk.textContent = chain.endpointShort;
-    pk.title = `public endpoint (pos 15): ${bytesToHex(chain.nodes[15])}`;
 
     const nodes = col.querySelectorAll(".wots-node");
     nodes.forEach((node) => {
