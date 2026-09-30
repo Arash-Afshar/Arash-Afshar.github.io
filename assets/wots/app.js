@@ -46,9 +46,6 @@ function ensureDemoShell(root) {
         <button type="button" id="btn-example" class="wots-btn-quiet">Example</button>
       </div>
       <p class="wots-note" id="msg-hint">Enter 32 hex chars, or text — text is SHA-256 truncated to 16 bytes.</p>
-    </div>
-
-    <div class="wots-panel">
       <div class="wots-controls">
         <button type="button" id="btn-prev-phase" disabled>⟵ Phase</button>
         <button type="button" id="btn-prev" disabled>Prev</button>
@@ -64,8 +61,8 @@ function ensureDemoShell(root) {
         <button type="button" id="btn-tests">Run self-tests</button>
       </div>
       <p id="status"></p>
-      <div id="narration-root"></div>
       <div id="overview-root"></div>
+      <div id="narration-root"></div>
     </div>
 
     <div class="wots-panel">
