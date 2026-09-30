@@ -3,8 +3,11 @@
  */
 
 import { WOTS_TW } from "../crypto/wots-tw.js";
-import { PHASE_TITLES } from "./sign-steps.js";
+import { PHASE_TITLES, PHASE_COUNT } from "./sign-steps.js";
 import { bytesToHex } from "../crypto/bytes.js";
+
+/** Preserve “show full σ” expand state across step re-renders. */
+let sigDetailsOpen = false;
 
 /**
  * @param {HTMLElement} root
@@ -17,7 +20,7 @@ export function renderSignNarration(root, view, trace, handlers = {}) {
 
   root.innerHTML = `
     <div class="wots-phase-bar">
-      ${[1, 2, 3, 4, 5]
+      ${Array.from({ length: PHASE_COUNT }, (_, i) => i + 1)
         .map(
           (p) => `
         <button type="button" class="wots-phase-chip ${p === phase ? "is-current" : ""} ${p < phase ? "is-done" : ""}" data-phase="${p}">
@@ -47,10 +50,14 @@ export function renderSignNarration(root, view, trace, handlers = {}) {
         <span class="wots-mapping-key">digits</span>
         <div class="wots-digit-row" data-digits></div>
       </div>
-      <div class="wots-mapping-row">
+      ${
+        view.checksumSumShown || phase >= 2
+          ? `<div class="wots-mapping-row">
         <span class="wots-mapping-key">checksum</span>
         <div class="wots-checksum" data-checksum></div>
-      </div>
+      </div>`
+          : ""
+      }
     </div>
 
     <div class="wots-focus" data-focus></div>
@@ -60,7 +67,14 @@ export function renderSignNarration(root, view, trace, handlers = {}) {
       <div class="wots-sig-grid" data-sig></div>
       ${
         view.signatureDone
-          ? `<p class="wots-sig-full"><code>${escapeHtml(trace.signatureHex)}</code></p>`
+          ? `<details class="wots-sig-details" data-sig-details ${sigDetailsOpen ? "open" : ""}>
+              <summary>
+                <span class="wots-sig-toggle-closed">[+]</span>
+                <span class="wots-sig-toggle-open">[−]</span>
+                Show full signature (560 bytes)
+              </summary>
+              <code class="wots-sig-full-code">${escapeHtml(trace.signatureHex)}</code>
+            </details>`
           : ""
       }
     </div>
@@ -78,26 +92,13 @@ export function renderSignNarration(root, view, trace, handlers = {}) {
   digitRow.innerHTML = mapping.messageIndexes
     .map((d, i) => {
       const on = view.digitsRevealed[i];
-      return `<span class="wots-digit ${on ? "is-on" : ""} ${view.step.chunkIndex === i && view.step.phase === 2 ? "is-focus" : ""}">${on ? d : "·"}</span>`;
+      return `<span class="wots-digit ${on ? "is-on" : ""} ${view.step.chunkIndex === i && (view.step.kind === "chunk" || view.step.kind === "digit") ? "is-focus" : ""}">${on ? d : "·"}</span>`;
     })
     .join("");
 
   const checksumEl = root.querySelector("[data-checksum]");
-  if (!view.checksumRevealed && phase < 2) {
-    checksumEl.innerHTML = `<span class="wots-muted">not yet</span>`;
-  } else if (!view.checksumRevealed) {
-    checksumEl.innerHTML = `<span class="wots-muted">computing…</span>`;
-  } else {
-    const csumDigits = mapping.checksumIndexes
-      .map((d, i) => {
-        const on = view.checksumDigitsRevealed[i];
-        return `<span class="wots-digit ${on ? "is-on" : ""}">${on ? d : "·"}</span>`;
-      })
-      .join("");
-    checksumEl.innerHTML = `
-      <span>${WOTS_TW.checksumMax} − Σ = <strong>${mapping.checksum}</strong></span>
-      <span class="wots-csum-digits">${csumDigits}</span>
-    `;
+  if (checksumEl) {
+    checksumEl.innerHTML = renderChecksumPanel(view, mapping);
   }
 
   const focus = root.querySelector("[data-focus]");
@@ -110,9 +111,20 @@ export function renderSignNarration(root, view, trace, handlers = {}) {
       const focus =
         step.kind === "sig-collect" && step.chainIndex === i ? "is-focus" : "";
       const short = on ? chain.signatureShort : "······";
-      return `<span class="wots-sig-cell ${on ? "is-on" : ""} ${focus}" title="σ_${i}">${short}</span>`;
+      const full = bytesToHex(chain.signatureElement);
+      const title = on
+        ? `σ_${i} = ${full}`
+        : `σ_${i} (not yet placed)`;
+      return `<span class="wots-sig-cell ${on ? "is-on" : ""} ${focus}" title="${title}">${short}</span>`;
     })
     .join("");
+
+  const details = root.querySelector("[data-sig-details]");
+  if (details) {
+    details.addEventListener("toggle", () => {
+      sigDetailsOpen = details.open;
+    });
+  }
 
   if (typeof handlers.onPhase === "function") {
     root.querySelectorAll("[data-phase]").forEach((btn) => {
@@ -123,8 +135,116 @@ export function renderSignNarration(root, view, trace, handlers = {}) {
   }
 }
 
+function renderChecksumPanel(view, mapping) {
+  if (!view.checksumSumShown) {
+    return `<span class="wots-muted">computing…</span>`;
+  }
+
+  const focusKind = view.step.kind;
+  const parts = [];
+
+  parts.push(
+    `<span class="wots-csum-bit ${focusKind === "checksum-sum" ? "is-focus" : ""}">Σ=<strong>${mapping.digitSum}</strong></span>`
+  );
+
+  if (view.checksumMaxShown) {
+    parts.push(`<span class="wots-csum-sep">·</span>`);
+    parts.push(
+      `<span class="wots-csum-bit ${focusKind === "checksum-max" ? "is-focus" : ""}" title="32 digits × 15">max=<strong>${WOTS_TW.checksumMax}</strong></span>`
+    );
+  } else {
+    parts.push(`<span class="wots-csum-sep wots-muted">·</span>`);
+    parts.push(`<span class="wots-muted">max=…</span>`);
+  }
+
+  if (view.checksumValueShown) {
+    parts.push(`<span class="wots-csum-sep">·</span>`);
+    parts.push(
+      `<span class="wots-csum-bit ${focusKind === "checksum-sub" ? "is-focus" : ""}">${WOTS_TW.checksumMax}−${mapping.digitSum}=<strong>${mapping.checksum}</strong></span>`
+    );
+  } else if (view.checksumMaxShown) {
+    parts.push(`<span class="wots-csum-sep wots-muted">·</span>`);
+    parts.push(`<span class="wots-muted">csum=…</span>`);
+  }
+
+  if (view.checksumEncoded) {
+    const hex = mapping.checksumHex.toUpperCase();
+    const encodeFocus =
+      focusKind === "checksum-encode" || focusKind === "checksum-digit";
+    parts.push(`<span class="wots-csum-sep">·</span>`);
+    parts.push(
+      `<span class="wots-csum-bit ${encodeFocus ? "is-focus" : ""}">0x${hex}</span>`
+    );
+    parts.push(`<span class="wots-csum-sep">→</span>`);
+    parts.push(
+      `<span class="wots-csum-digits">${[0, 1, 2]
+        .map((i) => {
+          const on = view.checksumDigitsRevealed[i];
+          const focus =
+            focusKind === "checksum-digit" && view.step.chainIndex === 32 + i;
+          return `<span class="wots-digit ${on ? "is-on" : ""} ${focus ? "is-focus" : ""}" title="chain ${32 + i}">${on ? mapping.checksumIndexes[i] : "·"}</span>`;
+        })
+        .join("")}</span>`
+    );
+  }
+
+  return `<div class="wots-csum-inline">${parts.join("")}</div>`;
+}
+
 function renderFocus(view, trace) {
-  const { step } = view;
+  const { step, mapping } = view;
+
+  if (step.kind === "checksum-sum") {
+    return `
+      <div class="wots-focus-card wots-focus-card--rail">
+        <div class="wots-focus-head">
+          <strong>Checksum · Σ</strong>
+          <span class="wots-muted">sum the message digits</span>
+        </div>
+        <div class="wots-hash-rail wots-hash-rail--idle wots-csum-focus">
+          <p class="wots-csum-focus-math">Add the 32 digits above → Σ = <strong>${mapping.digitSum}</strong></p>
+        </div>
+      </div>`;
+  }
+
+  if (step.kind === "checksum-max") {
+    return `
+      <div class="wots-focus-card wots-focus-card--rail">
+        <div class="wots-focus-head">
+          <strong>Checksum · max</strong>
+          <span class="wots-muted">where ${WOTS_TW.checksumMax} comes from</span>
+        </div>
+        <div class="wots-hash-rail wots-hash-rail--idle wots-csum-focus">
+          <p class="wots-csum-focus-math">32 digits × 15 max each = <strong>${WOTS_TW.checksumMax}</strong> · Σ is already ${mapping.digitSum}</p>
+        </div>
+      </div>`;
+  }
+
+  if (step.kind === "checksum-sub") {
+    return `
+      <div class="wots-focus-card wots-focus-card--rail">
+        <div class="wots-focus-head">
+          <strong>Checksum · subtract</strong>
+          <span class="wots-muted">ceiling − Σ</span>
+        </div>
+        <div class="wots-hash-rail wots-hash-rail--idle wots-csum-focus">
+          <p class="wots-csum-focus-math">${WOTS_TW.checksumMax} − ${mapping.digitSum} = <strong>${mapping.checksum}</strong> — raising a message digit forces the checksum down</p>
+        </div>
+      </div>`;
+  }
+
+  if (step.kind === "checksum-encode" || step.kind === "checksum-digit") {
+    return `
+      <div class="wots-focus-card wots-focus-card--rail">
+        <div class="wots-focus-head">
+          <strong>Checksum · nibbles</strong>
+          <span class="wots-muted">three base-16 digits → chains 32–34</span>
+        </div>
+        <div class="wots-hash-rail wots-hash-rail--idle wots-csum-focus">
+          <p class="wots-csum-focus-math">${mapping.checksum} = 0x${mapping.checksumHex.toUpperCase()} → [<strong>${mapping.checksumIndexes.join(", ")}</strong>]</p>
+        </div>
+      </div>`;
+  }
 
   if (step.phase === 5) {
     return `
@@ -134,7 +254,7 @@ function renderFocus(view, trace) {
           <span class="wots-muted">all 35 slots filled</span>
         </div>
         <div class="wots-hash-rail wots-hash-rail--idle">
-          <span class="wots-muted">σ is ready — public tips stay public; each σᵢ is one revealed chain node.</span>
+          <span class="wots-muted">σ is ready — expand [+] under the signature grid for the full 560-byte hex. Hover a slot for that σᵢ.</span>
         </div>
       </div>`;
   }

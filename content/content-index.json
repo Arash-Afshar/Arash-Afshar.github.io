@@ -3,7 +3,7 @@
     {
       "slug": "wots",
       "title": "WOTS hash chains",
-      "date": "2026-09-24T18:00:00-06:00",
+      "date": "2026-09-30T10:00:00-06:00",
       "tags": ["post-quantum", "signatures", "interactive"],
       "summary": "An interactive look at one real SHRINCS WOTS hash chain, with step-by-step traces and in-browser self-tests.",
       "description": "Sign a message with WOTS-TW and step through real hash chains: digits, checksum, signatures, and public tips.",

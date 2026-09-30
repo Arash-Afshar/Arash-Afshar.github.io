@@ -689,6 +689,7 @@
   margin: 0.35rem 0 0;
   color: var(--wots-muted);
   font-size: 0.8rem;
+  overflow-wrap: anywhere;
 }
 
 .wots-mapping {
@@ -700,7 +701,7 @@
 
 .wots-mapping-row {
   display: grid;
-  grid-template-columns: 7rem 1fr;
+  grid-template-columns: 7rem minmax(0, 1fr);
   gap: 0.55rem;
   align-items: start;
 }
@@ -780,12 +781,62 @@
 }
 
 .wots-checksum {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  align-items: center;
+  display: block;
   font-size: 0.78rem;
   color: var(--wots-text);
+  min-width: 0;
+}
+
+.wots-csum-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.35rem;
+  min-height: 1.35rem;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.wots-csum-bit {
+  padding: 0.1rem 0.28rem;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.wots-csum-bit.is-focus {
+  border-color: var(--wots-warm);
+  background: rgba(201, 165, 84, 0.08);
+  color: var(--wots-warm);
+}
+
+.wots-csum-bit strong {
+  color: var(--wots-warm);
+  font-weight: 700;
+}
+
+.wots-csum-sep {
+  color: var(--wots-faint);
+}
+
+.wots-csum-focus {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0;
+  overflow-y: auto;
+}
+
+.wots-csum-focus p {
+  margin: 0;
+  color: var(--wots-muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.wots-csum-focus-math {
+  color: var(--wots-text) !important;
+  font-family: inherit;
 }
 
 .wots-muted {
@@ -951,16 +1002,61 @@
 
 .wots-signature-panel {
   margin-bottom: 0.9rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
-.wots-sig-full {
-  margin: 0.55rem 0 0;
-  overflow-wrap: anywhere;
-  font-size: 0.68rem;
+.wots-sig-details {
+  margin-top: 0.55rem;
+  border-top: 1px solid var(--wots-border);
+  padding-top: 0.45rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
-.wots-sig-full code {
+.wots-sig-details summary {
+  cursor: pointer;
+  color: var(--wots-warm);
+  font-size: 0.78rem;
+  font-weight: 700;
+  list-style: none;
+  user-select: none;
+}
+
+.wots-sig-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.wots-sig-toggle-open {
+  display: none;
+}
+
+.wots-sig-details[open] .wots-sig-toggle-closed {
+  display: none;
+}
+
+.wots-sig-details[open] .wots-sig-toggle-open {
+  display: inline;
+}
+
+.wots-sig-details[open] summary {
+  margin-bottom: 0.4rem;
+}
+
+.wots-sig-full-code {
+  display: block;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--wots-border);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.22);
   color: var(--wots-accent);
+  font-size: 0.68rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-all;
 }
 
 @media (max-width: 640px) {

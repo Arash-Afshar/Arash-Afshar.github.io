@@ -2,8 +2,8 @@
  * Flat step list for WOTS-TW signing animation (next/prev/play).
  *
  * Phases:
- *  1. Split message into log₂(w)=4-bit chunks
- *  2. Represent each chunk (and checksum) as a number
+ *  1. Split message into log₂(w)=4-bit chunks (and read them as digits)
+ *  2. Compute checksum digits from the message digits
  *  3. Select that location on each hash chain
  *  4. Hash sk forward; after each chain’s tip, place σᵢ into the signature
  *  5. End state — full signature assembled
@@ -40,7 +40,7 @@ export function buildSignSteps(trace) {
   const { mapping, chains } = trace;
   const msg = trace.inputs.messageHex;
 
-  // —— Phase 1: split into 4-bit chunks ——
+  // —— Phase 1: split into 4-bit chunks (= digits) ——
   push({
     phase: 1,
     kind: "message",
@@ -51,47 +51,51 @@ export function buildSignSteps(trace) {
     phase: 1,
     kind: "split-intro",
     label: "Split into log₂(w) = 4-bit chunks",
-    detail: "w = 16, so each chunk is one hex digit (nibble).",
+    detail: "w = 16, so each chunk is one hex nibble — the same value is the Winternitz digit 0…15.",
   });
   for (let i = 0; i < WOTS_TW.messageChains; i += 1) {
     push({
       phase: 1,
       kind: "chunk",
-      label: `Chunk ${i}: bits of message`,
-      detail: `nibble = 0x${mapping.nibbles[i]}`,
+      label: `Chunk ${i}: 0x${mapping.nibbles[i]} → digit ${mapping.messageIndexes[i]}`,
+      detail: `4-bit nibble = ${mapping.messageIndexes[i]} (0…15)`,
       chunkIndex: i,
     });
   }
 
-  // —— Phase 2: chunks as numbers + checksum ——
+  // —— Phase 2: checksum ——
   push({
     phase: 2,
-    kind: "numbers-intro",
-    label: "Read each chunk as an integer 0…15",
-    detail: "These integers are the Winternitz digits.",
+    kind: "checksum-sum",
+    label: `Add the 32 message digits → Σ = ${mapping.digitSum}`,
+    detail: `Σ is the sum of the digit row above (each digit 0…15).`,
   });
-  for (let i = 0; i < WOTS_TW.messageChains; i += 1) {
-    push({
-      phase: 2,
-      kind: "digit",
-      label: `Digit ${i} = ${mapping.messageIndexes[i]}`,
-      detail: `0x${mapping.nibbles[i]} → ${mapping.messageIndexes[i]}`,
-      chunkIndex: i,
-    });
-  }
   push({
     phase: 2,
-    kind: "checksum",
-    label: `Checksum = ${WOTS_TW.checksumMax} − sum(digits) = ${mapping.checksum}`,
-    detail: `checksum digits = [${mapping.checksumIndexes.join(", ")}]`,
+    kind: "checksum-max",
+    label: `Maximum possible sum = 32 × 15 = ${WOTS_TW.checksumMax}`,
+    detail: `32 message digits, each at most 15 → ceiling ${WOTS_TW.checksumMax}. The checksum is measured down from this ceiling.`,
+  });
+  push({
+    phase: 2,
+    kind: "checksum-sub",
+    label: `Checksum value = ${WOTS_TW.checksumMax} − Σ = ${mapping.checksum}`,
+    detail: `${WOTS_TW.checksumMax} − ${mapping.digitSum} = ${mapping.checksum}. Smaller Σ ⇒ larger checksum (and the reverse).`,
+  });
+  push({
+    phase: 2,
+    kind: "checksum-encode",
+    label: `Write ${mapping.checksum} as three base-16 digits: [${mapping.checksumIndexes.join(", ")}]`,
+    detail: `${mapping.checksum} = 0x${mapping.checksumHex.toUpperCase()} → nibbles (>>8), (>>4), (&0xf) = ${mapping.checksumIndexes.map((d, i) => `${d} (0x${d.toString(16)})`).join(", ")}`,
   });
   for (let i = 0; i < WOTS_TW.checksumChains; i += 1) {
     const chainIndex = WOTS_TW.messageChains + i;
+    const shift = [8, 4, 0][i];
     push({
       phase: 2,
       kind: "checksum-digit",
-      label: `Checksum digit ${i} = ${mapping.checksumIndexes[i]} (chain ${chainIndex})`,
-      detail: `Selects position ${mapping.checksumIndexes[i]} on checksum chain ${chainIndex}`,
+      label: `Checksum digit ${i} = (${mapping.checksum} >> ${shift}) & 0xf = ${mapping.checksumIndexes[i]}`,
+      detail: `This becomes the selected position on checksum chain ${chainIndex}`,
       chunkIndex: chainIndex,
       chainIndex,
     });
@@ -189,7 +193,10 @@ export function viewModelAt(trace, steps, stepIndex) {
 
   const chunksRevealed = new Array(WOTS_TW.messageChains).fill(false);
   const digitsRevealed = new Array(WOTS_TW.messageChains).fill(false);
-  let checksumRevealed = false;
+  let checksumSumShown = false;
+  let checksumMaxShown = false;
+  let checksumValueShown = false;
+  let checksumEncoded = false;
   const checksumDigitsRevealed = new Array(WOTS_TW.checksumChains).fill(false);
   const selected = new Array(WOTS_TW.totalChains).fill(false);
 
@@ -208,14 +215,34 @@ export function viewModelAt(trace, steps, stepIndex) {
     switch (s.kind) {
       case "chunk":
         chunksRevealed[s.chunkIndex] = true;
+        digitsRevealed[s.chunkIndex] = true;
         break;
       case "digit":
         digitsRevealed[s.chunkIndex] = true;
         break;
-      case "checksum":
-        checksumRevealed = true;
+      case "checksum-sum":
+        checksumSumShown = true;
+        break;
+      case "checksum-max":
+        checksumSumShown = true;
+        checksumMaxShown = true;
+        break;
+      case "checksum-sub":
+        checksumSumShown = true;
+        checksumMaxShown = true;
+        checksumValueShown = true;
+        break;
+      case "checksum-encode":
+        checksumSumShown = true;
+        checksumMaxShown = true;
+        checksumValueShown = true;
+        checksumEncoded = true;
         break;
       case "checksum-digit":
+        checksumSumShown = true;
+        checksumMaxShown = true;
+        checksumValueShown = true;
+        checksumEncoded = true;
         checksumDigitsRevealed[s.chunkIndex - WOTS_TW.messageChains] = true;
         break;
       case "select":
@@ -282,7 +309,10 @@ export function viewModelAt(trace, steps, stepIndex) {
     totalSteps: steps.length,
     chunksRevealed,
     digitsRevealed,
-    checksumRevealed,
+    checksumSumShown,
+    checksumMaxShown,
+    checksumValueShown,
+    checksumEncoded,
     checksumDigitsRevealed,
     selected,
     chainState,
@@ -296,8 +326,10 @@ export function viewModelAt(trace, steps, stepIndex) {
 
 export const PHASE_TITLES = {
   1: "Split message into 4-bit chunks",
-  2: "Read chunks as numbers (+ checksum)",
+  2: "Compute checksum",
   3: "Select positions on hash chains",
   4: "Hash chains & fill signature slots",
   5: "Signature complete",
 };
+
+export const PHASE_COUNT = 5;

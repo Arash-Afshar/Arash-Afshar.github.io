@@ -31,8 +31,8 @@ export function mapMessageWotsTw(message16) {
   }
 
   const messageIndexes = base2b(message16, WOTS_TW.logW, WOTS_TW.messageChains);
-  const sum = messageIndexes.reduce((a, b) => a + b, 0);
-  const checksum = WOTS_TW.checksumMax - sum;
+  const digitSum = messageIndexes.reduce((a, b) => a + b, 0);
+  const checksum = WOTS_TW.checksumMax - digitSum;
   if (checksum < 0 || checksum > 0xfff) {
     throw new Error(`checksum out of 3-nibble range: ${checksum}`);
   }
@@ -45,7 +45,9 @@ export function mapMessageWotsTw(message16) {
 
   return {
     messageIndexes,
+    digitSum,
     checksum,
+    checksumHex: checksum.toString(16).padStart(3, "0"),
     checksumIndexes,
     finalIndexes,
     nibbles: messageIndexes.map((d) => d.toString(16)),

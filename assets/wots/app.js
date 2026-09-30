@@ -151,7 +151,7 @@ async function main() {
       selectedChain = view.step.chainIndex;
     }
     renderSignNarration(narrationRoot, view, trace, {
-      onPhase: (phase) => jumpToPhase(phase),
+      onPhase: (phase) => jumpToPhase(phase, { at: "end" }),
     });
     renderOverview(overviewRoot, {
       chains: trace.chains,
@@ -161,7 +161,7 @@ async function main() {
         selectedChain = chainIndex;
         const latest = viewModelAt(trace, steps, stepIndex);
         renderSignNarration(narrationRoot, latest, trace, {
-          onPhase: (phase) => jumpToPhase(phase),
+          onPhase: (phase) => jumpToPhase(phase, { at: "end" }),
         });
         renderOverview(overviewRoot, {
           chains: trace.chains,
@@ -185,11 +185,21 @@ async function main() {
     btnPause.disabled = !playing;
   }
 
-  function jumpToPhase(phase) {
+  function jumpToPhase(phase, { at = "start" } = {}) {
     if (!trace || phase < 1 || phase > 5) {
       return;
     }
-    const idx = steps.findIndex((s) => s.phase === phase);
+    let idx = -1;
+    if (at === "end") {
+      for (let i = steps.length - 1; i >= 0; i -= 1) {
+        if (steps[i].phase === phase) {
+          idx = i;
+          break;
+        }
+      }
+    } else {
+      idx = steps.findIndex((s) => s.phase === phase);
+    }
     if (idx >= 0) {
       stopPlay();
       setStep(idx);
@@ -200,7 +210,9 @@ async function main() {
     if (!trace) {
       return;
     }
-    jumpToPhase(steps[stepIndex].phase + delta);
+    const target = steps[stepIndex].phase + delta;
+    // Forward: begin the next phase. Back: show the previous phase’s completed fill.
+    jumpToPhase(target, { at: delta < 0 ? "end" : "start" });
   }
 
   function paintIdle() {
