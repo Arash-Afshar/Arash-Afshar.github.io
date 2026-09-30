@@ -61,6 +61,7 @@ function ensureDemoShell(root) {
         <button type="button" id="btn-tests">Run self-tests</button>
       </div>
       <p id="status"></p>
+      <p class="wots-note wots-shortcuts">Keys: <kbd>Space</kbd> play/pause · <kbd>←</kbd>/<kbd>→</kbd> step · <kbd>P</kbd>/<kbd>N</kbd> phase</p>
       <div id="overview-root"></div>
       <div id="narration-root"></div>
     </div>
@@ -286,8 +287,8 @@ async function main() {
     setStatus(status, "Reset to phase 1.", "ok");
   });
 
-  btnPlay.addEventListener("click", () => {
-    if (!trace || playing) {
+  function startPlay() {
+    if (!trace || playing || stepIndex >= steps.length - 1) {
       return;
     }
     playing = true;
@@ -309,11 +310,82 @@ async function main() {
       playTimer = setTimeout(tick, speed);
     };
     tick();
-  });
+  }
 
-  btnPause.addEventListener("click", () => {
+  function pausePlay() {
+    if (!playing) {
+      return;
+    }
     stopPlay();
     setStatus(status, "Paused.", "ok");
+  }
+
+  function togglePlayPause() {
+    if (!trace) {
+      return;
+    }
+    if (playing) {
+      pausePlay();
+    } else {
+      startPlay();
+    }
+  }
+
+  btnPlay.addEventListener("click", () => startPlay());
+  btnPause.addEventListener("click", () => pausePlay());
+
+  document.addEventListener("keydown", (event) => {
+    const target = event.target;
+    if (
+      target instanceof HTMLElement &&
+      (target.closest("input, textarea, select, [contenteditable='true']") ||
+        target.isContentEditable)
+    ) {
+      return;
+    }
+    if (event.metaKey || event.ctrlKey || event.altKey) {
+      return;
+    }
+
+    const key = event.key;
+    if (key === " " || key === "Spacebar") {
+      event.preventDefault();
+      togglePlayPause();
+      return;
+    }
+    if (key === "ArrowRight") {
+      event.preventDefault();
+      if (!trace || stepIndex >= steps.length - 1) {
+        return;
+      }
+      stopPlay();
+      setStep(stepIndex + 1);
+      return;
+    }
+    if (key === "ArrowLeft") {
+      event.preventDefault();
+      if (!trace || stepIndex <= 0) {
+        return;
+      }
+      stopPlay();
+      setStep(stepIndex - 1);
+      return;
+    }
+    if (key === "n" || key === "N") {
+      event.preventDefault();
+      if (!trace || steps[stepIndex].phase >= 5) {
+        return;
+      }
+      jumpPhase(1);
+      return;
+    }
+    if (key === "p" || key === "P") {
+      event.preventDefault();
+      if (!trace || steps[stepIndex].phase <= 1) {
+        return;
+      }
+      jumpPhase(-1);
+    }
   });
 
   async function runTests() {
