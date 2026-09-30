@@ -6,7 +6,6 @@
 import { hexToBytes, bytesToHex } from "./crypto/bytes.js";
 import { sha256 } from "./crypto/sha256.js";
 import { signWotsTw, WOTS_TW } from "./crypto/wots-tw.js";
-import { runSelfTests } from "./crypto/self-tests.js";
 import { renderOverview } from "./ui/render-overview.js";
 import { renderSignNarration } from "./ui/render-signing.js";
 import { buildSignSteps, viewModelAt } from "./ui/sign-steps.js";
@@ -15,7 +14,7 @@ const DEMO = {
   pkSeed: "000102030405060708090a0b0c0d0e0f",
   skSeed: "101112131415161718191a1b1c1d1e1f",
   keypairIndex: 7,
-  defaultMessageHex: "0a1b2c3d4e5f60718293a4b5c6d7e8f9",
+  defaultMessage: "A Sample Message to Sign",
 };
 
 function byId(id) {
@@ -35,17 +34,19 @@ function ensureDemoShell(root) {
   root.classList.add("wots-demo");
   root.innerHTML = `
     <div class="wots-panel">
-      <div class="wots-message-form">
-        <label class="wots-field">
-          <span>Message</span>
-          <input id="msg-input" type="text" spellcheck="false"
-            placeholder="16-byte hex, or any text (hashed to 16 bytes)"
-            value="${DEMO.defaultMessageHex}">
-        </label>
-        <button type="button" id="btn-sign">Sign</button>
-        <button type="button" id="btn-example" class="wots-btn-quiet">Example</button>
+      <div id="wots-message-anchor" class="wots-message-anchor">
+        <div class="wots-message-form">
+          <label class="wots-field">
+            <span>Message</span>
+            <input id="msg-input" type="text" spellcheck="false"
+              placeholder="Any text (hashed to 16 bytes), or 32 hex chars"
+              value="${DEMO.defaultMessage}">
+          </label>
+          <button type="button" id="btn-sign">Sign</button>
+          <button type="button" id="btn-example">Example</button>
+        </div>
+        <p class="wots-note" id="msg-hint">Enter 32 hex chars, or text — text is SHA-256 truncated to 16 bytes.</p>
       </div>
-      <p class="wots-note" id="msg-hint">Enter 32 hex chars, or text — text is SHA-256 truncated to 16 bytes.</p>
       <div class="wots-controls">
         <button type="button" id="btn-prev-phase" disabled>⟵ Phase</button>
         <button type="button" id="btn-prev" disabled>Prev</button>
@@ -58,23 +59,17 @@ function ensureDemoShell(root) {
           Step ms
           <input id="speed" type="number" min="40" max="2000" step="20" value="160">
         </label>
-        <button type="button" id="btn-tests">Run self-tests</button>
       </div>
       <p id="status"></p>
       <p class="wots-note wots-shortcuts">Keys: <kbd>Space</kbd> play/pause · <kbd>←</kbd>/<kbd>→</kbd> step · <kbd>P</kbd>/<kbd>N</kbd> phase</p>
-      <div id="overview-root"></div>
       <div id="narration-root"></div>
+      <div id="overview-root"></div>
     </div>
 
     <div class="wots-panel">
       <h2 class="section-title" style="font-size:1.2rem;margin:0 0 0.7rem">Key material</h2>
-      <p class="wots-note">Fixed demo seeds. Public chain tips (pk) are always visible; sk and intermediates stay secret except as the animation reveals them.</p>
+      <p class="wots-note">Fixed demo seeds. Each chain has its own PRF-derived secret (shown as a short prefix in the grid). Intermediates stay secret except as the animation reveals them; public tips are the green endpoints.</p>
       <dl id="seed-info" style="margin-top:0.8rem"></dl>
-    </div>
-
-    <div class="wots-panel">
-      <h2 class="section-title" style="font-size:1.2rem;margin:0 0 0.7rem">Self-tests</h2>
-      <div id="test-results"><p class="wots-note">Tests run automatically on load.</p></div>
     </div>
   `;
 }
@@ -106,7 +101,6 @@ async function main() {
 
   const overviewRoot = byId("overview-root");
   const narrationRoot = byId("narration-root");
-  const testRoot = byId("test-results");
   const status = byId("status");
   const msgInput = byId("msg-input");
   const speedInput = byId("speed");
@@ -120,7 +114,6 @@ async function main() {
   const btnPlay = byId("btn-play");
   const btnPause = byId("btn-pause");
   const btnReset = byId("btn-reset");
-  const btnTests = byId("btn-tests");
 
   /** @type {null | Awaited<ReturnType<typeof signWotsTw>>} */
   let trace = null;
@@ -176,7 +169,6 @@ async function main() {
           selectedChain,
           onSelect: null,
         });
-        // restore handler without recursion loop
         overviewRoot.querySelector(".wots-overview")._onSelect = (c) => {
           selectedChain = c;
           setStep(stepIndex);
@@ -225,7 +217,7 @@ async function main() {
     btnReset.disabled = true;
   }
 
-  async function doSign() {
+  async function doSign({ scrollToMessage = false } = {}) {
     stopPlay();
     btnSign.disabled = true;
     setStatus(status, "Signing with real WOTS-TW (35 chains)…", "busy");
@@ -250,6 +242,14 @@ async function main() {
         `Signed — ${trace.counters.prfCalls} PRF, ${trace.counters.chainHashCalls} chain hashes, σ = ${trace.counters.signatureBytes} bytes.`,
         "ok"
       );
+      if (scrollToMessage) {
+        const anchor = byId("wots-message-anchor");
+        if (anchor) {
+          requestAnimationFrame(() => {
+            anchor.scrollIntoView({ behavior: "smooth", block: "start" });
+          });
+        }
+      }
     } catch (error) {
       trace = null;
       steps = [];
@@ -261,11 +261,11 @@ async function main() {
   }
 
   btnSign.addEventListener("click", () => {
-    doSign();
+    doSign({ scrollToMessage: true });
   });
 
   btnExample.addEventListener("click", () => {
-    msgInput.value = DEMO.defaultMessageHex;
+    msgInput.value = DEMO.defaultMessage;
   });
 
   btnPrev.addEventListener("click", () => {
@@ -388,65 +388,9 @@ async function main() {
     }
   });
 
-  async function runTests() {
-    btnTests.disabled = true;
-    testRoot.innerHTML = "<p>Running…</p>";
-    try {
-      const report = await runSelfTests();
-      const items = report.results
-        .map((r) => {
-          const cls = r.ok ? "pass" : "fail";
-          const detail = r.detail ? ` — ${escapeHtml(r.detail)}` : "";
-          return `<li class="${cls}"><strong>${escapeHtml(r.name)}</strong>${detail}</li>`;
-        })
-        .join("");
-      testRoot.innerHTML = `
-        <p>${report.passed} passed, ${report.failed} failed</p>
-        <ul class="test-list">${items}</ul>
-      `;
-      return report;
-    } catch (error) {
-      testRoot.innerHTML = `<p class="fail">${escapeHtml(error.message)}</p>`;
-      throw error;
-    } finally {
-      btnTests.disabled = false;
-    }
-  }
-
-  btnTests.addEventListener("click", async () => {
-    setStatus(status, "Running self-tests…", "busy");
-    try {
-      const report = await runTests();
-      setStatus(
-        status,
-        report.failed === 0
-          ? "All self-tests passed."
-          : `${report.failed} self-test(s) failed.`,
-        report.failed === 0 ? "ok" : "error"
-      );
-    } catch (error) {
-      setStatus(status, `Self-tests crashed: ${error.message}`, "error");
-    }
-  });
-
   paintIdle();
-  setStatus(status, "Running self-tests…", "busy");
-  try {
-    const report = await runTests();
-    if (report.failed !== 0) {
-      setStatus(status, `${report.failed} self-test(s) failed.`, "error");
-    }
-  } catch (error) {
-    setStatus(status, `Self-tests crashed: ${error.message}`, "error");
-  }
+  setStatus(status, "Ready — enter a message and press Sign.", "ok");
   await doSign();
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
 }
 
 main();

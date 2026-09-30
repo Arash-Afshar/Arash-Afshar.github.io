@@ -64,7 +64,8 @@
   color: var(--wots-text);
 }
 
-.wots-controls button {
+.wots-controls button,
+.wots-message-form > button {
   padding: 0.45rem 0.75rem;
   border: 1px solid var(--wots-border);
   border-radius: 8px;
@@ -75,12 +76,14 @@
   cursor: pointer;
 }
 
-.wots-controls button:hover:not(:disabled) {
+.wots-controls button:hover:not(:disabled),
+.wots-message-form > button:hover:not(:disabled) {
   border-color: var(--wots-warm);
   color: var(--wots-warm);
 }
 
-.wots-controls button:disabled {
+.wots-controls button:disabled,
+.wots-message-form > button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -304,12 +307,16 @@
 
 .wots-chain-sk {
   display: block;
+  width: 100%;
   height: 1.05rem;
-  font-size: 0.55rem;
-  font-style: italic;
+  font-size: 0.45rem;
+  font-style: normal;
   color: var(--wots-muted);
   line-height: 1.05rem;
+  text-align: center;
+  letter-spacing: -0.03em;
   white-space: nowrap;
+  overflow: hidden;
   user-select: none;
 }
 
@@ -562,14 +569,18 @@
   font-size: 0.8rem;
 }
 
-#overview-root {
-  margin-top: 0.35rem;
+#narration-root {
+  margin-top: 0.85rem;
 }
 
-#narration-root {
+#overview-root {
   margin-top: 1rem;
   padding-top: 0.85rem;
   border-top: 1px solid var(--wots-border);
+}
+
+.wots-message-anchor {
+  scroll-margin-top: 1rem;
 }
 
 .wots-message-form {
@@ -598,22 +609,6 @@
   color: var(--wots-text);
   font: inherit;
   font-size: 0.8rem;
-}
-
-.wots-btn-quiet {
-  padding: 0.45rem 0.75rem;
-  border: 1px solid var(--wots-border);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--wots-muted);
-  font: inherit;
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-
-.wots-btn-quiet:hover {
-  color: var(--wots-warm);
-  border-color: var(--wots-warm);
 }
 
 .wots-phase-bar {
@@ -724,7 +719,15 @@
 
 .wots-chunk-row,
 .wots-digit-row,
-.wots-csum-digits,
+.wots-csum-digits {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 2px;
+  overflow-x: auto;
+  max-width: 100%;
+  padding-bottom: 0.15rem;
+}
+
 .wots-sig-grid {
   display: flex;
   flex-wrap: wrap;
@@ -737,14 +740,29 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 1.15rem;
   height: 1.25rem;
-  padding: 0 0.2rem;
   border: 1px solid var(--wots-border);
   border-radius: 4px;
   background: rgba(0, 0, 0, 0.2);
   color: var(--wots-faint);
   font-size: 0.65rem;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+}
+
+.wots-chunk,
+.wots-digit {
+  width: 3.6ch;
+  min-width: 3.6ch;
+  padding: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.wots-sig-cell {
+  min-width: 2.6rem;
+  padding: 0 0.2rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.02em;
 }
 
 .wots-chunk.is-on,
@@ -933,12 +951,6 @@
 
 .wots-signature-panel {
   margin-bottom: 0.9rem;
-}
-
-.wots-sig-cell {
-  min-width: 2.6rem;
-  font-size: 0.6rem;
-  letter-spacing: 0.02em;
 }
 
 .wots-sig-full {

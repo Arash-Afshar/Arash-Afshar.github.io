@@ -168,7 +168,7 @@ function renderFocus(view, trace) {
         <span class="wots-muted">phases 3–4</span>
       </div>
       <div class="wots-hash-rail wots-hash-rail--idle">
-        <span class="wots-muted">Select a chain position, then watch sk hash forward into σ.</span>
+        <span class="wots-muted">Select a chain position, then watch that chain’s secret hash forward into σ.</span>
       </div>
     </div>`;
 }
@@ -210,7 +210,7 @@ function renderHashRail(chain, state) {
     } else if (reached) {
       if (p === 0) {
         role = "secret";
-        hash = "sk";
+        hash = bytesToHex(chain.nodes[0]).slice(0, 6);
         cls = "is-secret";
       } else if (p === target && state.revealedSig) {
         role = state.collected ? "in σ" : "signature";

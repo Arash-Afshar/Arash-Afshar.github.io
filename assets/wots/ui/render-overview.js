@@ -69,6 +69,7 @@ function buildShellHtml() {
         <span><i class="wots-swatch wots-swatch--secret"></i> secret / computed</span>
         <span><i class="wots-swatch wots-swatch--sig"></i> signature node</span>
         <span><i class="wots-swatch wots-swatch--active"></i> current step</span>
+        <span>top labels = unique chain secrets (short hex)</span>
       </div>
       <div class="wots-overview-scroll">
         <div class="wots-overview-grid">
@@ -104,7 +105,7 @@ function chainColumnHtml(chainIndex) {
 
   return `
     <div class="wots-chain" data-chain="${chainIndex}" role="listitem">
-      <span class="wots-chain-sk">sk</span>
+      <span class="wots-chain-sk" data-sk title="chain ${chainIndex} secret"></span>
       <div class="wots-chain-nodes">${nodes}</div>
       <span class="wots-chain-idx">${chainIndex}</span>
     </div>
@@ -131,6 +132,11 @@ function updateOverview(shell, opts) {
     col.classList.toggle("is-selected", isSelected);
     col.classList.toggle("is-target-selected", isTargetSelected);
     col.classList.toggle("is-sig-collected", collected);
+
+    const skLabel = col.querySelector("[data-sk]");
+    const secretShort = bytesToHex(chain.nodes[0]).slice(0, 4);
+    skLabel.textContent = secretShort;
+    skLabel.title = `chain ${chainIndex} secret (PRF output, not published): ${bytesToHex(chain.nodes[0])}`;
 
     const nodes = col.querySelectorAll(".wots-node");
     nodes.forEach((node) => {
@@ -173,7 +179,7 @@ function updateOverview(shell, opts) {
       } else if (isSigVisible) {
         title += ` — signature ${short}`;
       } else if (isComputed && pos === 0) {
-        title += " — secret sk (not published)";
+        title += ` — secret ${short} (not published)`;
       } else if (isComputed) {
         title += ` — computed ${short} (not published)`;
       }

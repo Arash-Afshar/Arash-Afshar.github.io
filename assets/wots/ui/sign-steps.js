@@ -10,6 +10,7 @@
  */
 
 import { WOTS_TW } from "../crypto/wots-tw.js";
+import { bytesToHex } from "../crypto/bytes.js";
 
 /**
  * @typedef {{
@@ -131,8 +132,8 @@ export function buildSignSteps(trace) {
     push({
       phase: 4,
       kind: "chain-start",
-      label: `Chain ${c}: start from secret sk`,
-      detail: `Will apply F exactly ${target} time(s)`,
+      label: `Chain ${c}: start from secret ${bytesToHex(chain.nodes[0]).slice(0, 6)}…`,
+      detail: `PRF-derived secret for chain ${c} (unique per chain). Will apply F exactly ${target} time(s)`,
       chainIndex: c,
       pos: 0,
     });
