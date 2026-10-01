@@ -14,17 +14,41 @@
     <link rel="stylesheet" href="/assets/wots-reuse/styles.css">
     <script defer src="/assets/markdown.js"></script>
     <script defer src="/assets/site.js"></script>
-  </head>
+              <script type="application/ld+json" id="prerender-jsonld">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Why WOTS is one-time",
+  "description": "Sign two real messages with the same WOTS key and watch how an observer forges others from the leaked chain nodes.",
+  "datePublished": "2026-10-01T09:30:00-06:00",
+  "url": "https://arash-afshar.github.io/blog/wots-reuse/",
+  "mainEntityOfPage": "https://arash-afshar.github.io/blog/wots-reuse/",
+  "author": {
+    "@type": "Person",
+    "name": "Arash Afshar",
+    "url": "https://arash-afshar.github.io"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Arash Afshar",
+    "url": "https://arash-afshar.github.io"
+  },
+  "keywords": "post-quantum, signatures, interactive"
+}
+    </script>
+</head>
   <body data-post-slug="wots-reuse">
     <div class="site-shell" id="content-root">
       <header class="site-header" id="site-header"></header>
       <main class="article-shell">
         <section class="article-header">
           <h1 id="article-title">Why WOTS is one-time</h1>
-          <p class="article-description" id="article-description"></p>
-          <div class="post-meta" id="article-meta"></div>
+          <p class="article-description" id="article-description">Sign two real messages with the same WOTS key and watch how an observer forges others from the leaked chain nodes.</p>
+          <div class="post-meta" id="article-meta"><span>October 1, 2026</span><span class="pill">post-quantum</span><span class="pill">signatures</span><span class="pill">interactive</span></div>
         </section>
-        <article class="markdown-body" id="article-body"></article>
+        <article class="markdown-body" id="article-body" data-prerendered="true">
+<p>WOTS is a <strong>one-time</strong> signing scheme: each signature reveals some information about the secret signing key. After signing two different messages under the same key, an observer can use what was revealed to forge signatures on <em>other</em> messages. See <a href="/blog/wots/">how WOTS works</a> for an interactive and step-by-step way of signing with WOTS and its "chains". Every signature publishes one hash node per chain; from that node upward to the public tip, anyone can recompute the rest with the public hash function. Those publicly reachable values are exactly what a forger needs. <strong>Why a single signature is still fine?</strong> Raising a message digit means revealing a <em>lower</em> node on that chain (hashing farther from the secret). An attacker who tries to forge a different message by hashing upward only increases digits. Since the checksum is defined as \(480 - \Sigma(\text{message digits})\), increasing any message digit <em>forces</em> the checksum digits down. To produce a valid signature for those smaller checksum digits, the attacker would need nodes <em>below</em> what the honest signature revealed on the checksum chains — and the hash function does not go backward. So one signature does not let you freely invent a new digit vector. <strong>Why two signatures break that?</strong> With two different messages you see two heights on each chain and keep the <strong>lower</strong> of the two. On every chain, the band from that leaked node up to the public tip is now public computation (teal in the demo below). Any new message whose digits — checksum included — all sit inside those bands is forgeable: the observer hashes upward from each leak to the required height and obtains a verifying signature, with no secret key. The demo uses the same keypair as the previous post. Grids 1–2 are the two honest signatures; grid 3 shows the leaked nodes and the public-upward bands; grid 4 lists ordinary-looking messages that clear those bands — click one to place the forged signature inside the teal region.</p>
+</article>
         <section id="wots-reuse-demo" class="wots-demo" aria-label="WOTS key reuse demonstration"></section>
       </main>
       <footer class="site-footer" id="site-footer"></footer>

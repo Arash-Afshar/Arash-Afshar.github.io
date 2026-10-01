@@ -12,17 +12,50 @@
     <link rel="stylesheet" href="/assets/styles.css">
     <script defer src="/assets/markdown.js"></script>
     <script defer src="/assets/site.js"></script>
-  </head>
+              <script type="application/ld+json" id="prerender-jsonld">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Secure Machine Learning",
+  "description": "A post about secure training, secure models, and secure querying for privacy-preserving machine learning.",
+  "datePublished": "2020-02-14T07:00:00-07:00",
+  "url": "https://arash-afshar.github.io/blog/secure-ml/",
+  "mainEntityOfPage": "https://arash-afshar.github.io/blog/secure-ml/",
+  "author": {
+    "@type": "Person",
+    "name": "Arash Afshar",
+    "url": "https://arash-afshar.github.io"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Arash Afshar",
+    "url": "https://arash-afshar.github.io"
+  },
+  "keywords": "security, practical"
+}
+    </script>
+</head>
   <body data-post-slug="secure-ml">
     <div class="site-shell" id="content-root">
       <header class="site-header" id="site-header"></header>
       <main class="article-shell">
         <section class="article-header">
           <h1 id="article-title">Secure Machine Learning</h1>
-          <p class="article-description" id="article-description"></p>
-          <div class="post-meta" id="article-meta"></div>
+          <p class="article-description" id="article-description">A post about secure training, secure models, and secure querying for privacy-preserving machine learning.</p>
+          <div class="post-meta" id="article-meta"><span>February 14, 2020</span><span class="pill">security</span><span class="pill">practical</span></div>
         </section>
-        <article class="markdown-body" id="article-body"></article>
+        <article class="markdown-body" id="article-body" data-prerendered="true">
+<p>In previous posts (<a href="/blog/absolute-security-with-no-trust/">Zero Trust</a>, <a href="/blog/oblivious-transfer/">MPC-1</a>), I described the importance of Secure Multiparty Computation and showed a simple use case for it, a secure weather application. In this post, I want to skip ahead to a far more advanced application to showcase the amazing things that one can do given the exisitng tools and libraries. More specifically, I will talk about secure machine learning. I will use a popular service such as Grammarly as an example and will described how one can approach implementing a more secure version of it. Grammarly can be installed as a browser plugin, it will montior the text that you type in any website and will find grammatical mistakes. It will then offer you fixes for those mistakes. It is a great product but, for their product to work, they need to collect all the content that you type and analyze them (see their <a href="https://www.grammarly.com/privacy-policy" target="_blank" rel="noreferrer">privacy policy</a>). I am NOT accusing them of any bad intention, but the simple fact that they need to collect what I type means that I cannot use it for anything related to my work (writing emails, describing architectures, etc) which is the main usecase of their service for me. Therefore, I am in a situation where I have a need for such a product, but my privacy requirements prevent me from using it. Now the question is, is it possible to create such a product that satisfies my privacy requiremnts? I believe the answer is yes and I will describe the steps and tools that are needed in this post. Broadly speaking, products such as Grammarly are backed by a Machine Learning (ML) <em>model</em>. This model needs to be trained on a huge dataset and constantly kept updated with new data. Once a model is trained, the model will be deployed and used to respond to queries from the users. Therefore, to implement a secure verion of this service, at the very least we need to secure each of these steps.</p>
+<ol><li>Secure Training: In the training phase, the data must be kept private</li><li>Secure Model: The resulting trained model must not reveal anything about the private data</li><li>Secure Querying: When querying the model, the query data must be private</li></ol>
+<h1 id="secure-training">Secure Training</h1>
+<p>In the training phase, one or more parties have private data. In most cases, these data owners do not have the computational power to run the training and therefore, they will outsource their data to a "cloud". Thus, the goal is to make sure that the "cloud" does not learn the private input. Moreover, the cloud should be able to perform computation on those private data. This is a great use case for Secure Multiparty Computation. The current state-of-the-art papers (<a href="https://eprint.iacr.org/2018/403.pdf" target="_blank" rel="noreferrer">ABY3</a>, <a href="https://eprint.iacr.org/2018/442.pdf" target="_blank" rel="noreferrer">SecureNN</a>) propose a 3-party setting. In this setting many data owners will outsource their data to these parties (think of them as three "clouds") and these parties will run the MPC protocls on behalf of the data owners. The <strong>important assumption</strong> here is that these parties are non-colluding. If you are not interested in reading the papers and implementing them yourself, you can check out the great work done by the folks at <a href="https://dropoutlabs.com/" target="_blank" rel="noreferrer">Dropout Labs</a>. They are working an a secure version of Tensorflow, called <a href="https://tf-encrypted.io/" target="_blank" rel="noreferrer">tf-encrypted</a> which implements the above papers in addition to the <a href="https://bristolcrypto.blogspot.com/2016/10/what-is-spdz-part-1-mpc-circuit.html" target="_blank" rel="noreferrer">SPDZ</a> protocol. If you want to implement the protocols yourself, you can checkout the <a href="https://github.com/MPC-SoK/frameworks" target="_blank" rel="noreferrer">MPC-SoK</a> repository. Marcella Hastings, et al have done an amazing job of collectiong, compiling, documenting, and comparing most of the existing MPC frameworks.</p>
+<h1 id="secure-model">Secure Model</h1>
+<p>From the above, we have a model that has been computed in a secure manner and is shared between three non-colluding parties. But that is not enough! A model that is trained in this fashion can still leak information. An example of an attack that can reveal information about the private inputs from the model is "Model Inversion" attack (e.g., <a href="https://arxiv.org/pdf/1802.08232.pdf" target="_blank" rel="noreferrer">Secret Sharer</a>). Assume Alice is a data owner and one of the inputs she has sent to cloud has this format: "Alice A, credit card number: 1234-5678". Now the attacker can start a brute-force attack by querying the model with "Alice A, credit card number: XXX-XXX" where XXX-XXX is brute-forced. In other applications, this would be even worse. Consider an attacker that types "Alice A, credit card number: 123-" and the model auto-completes the rest of the credit card number for the attacker! There are different techinques to defend against this kind of attack, including sanitizing the data, anonymizing the data, or using techniques such as <a href="https://en.wikipedia.org/wiki/Differential_privacy" target="_blank" rel="noreferrer">Differential Privacy</a> (DP).</p>
+<h1 id="secure-querying">Secure Querying</h1>
+<p>Given a secure training phase and assuming that the model itself does not leak any information, we can focus on the deployment. In terms of security of the implementation, this is very similar to the training phase in that MPC can be used to ensure the priavcy of the query data.</p>
+<h2 id="final-words">Final Words</h2>
+<p>Of course, as I have mentioned in my <a href="/blog/absolute-security-with-no-trust/">previous post</a>, having the theoretical solution is not enough and there many more more things that need to be considered before such an application can be ready for secure production use. I encourage you to checkout the tutorials on <a href="https://github.com/tf-encrypted/tf-encrypted/tree/master/examples/notebooks/keras-classification" target="_blank" rel="noreferrer">tf-encrypted with keras and DP</a> and <a href="https://github.com/OpenMined/PySyft/tree/dev/examples/tutorials" target="_blank" rel="noreferrer">PySyft</a> for a more hands-on experience.</p>
+</article>
       </main>
       <footer class="site-footer" id="site-footer"></footer>
     </div>

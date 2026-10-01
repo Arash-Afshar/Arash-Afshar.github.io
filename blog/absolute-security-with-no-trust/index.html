@@ -12,17 +12,81 @@
     <link rel="stylesheet" href="/assets/styles.css">
     <script defer src="/assets/markdown.js"></script>
     <script defer src="/assets/site.js"></script>
-  </head>
+              <script type="application/ld+json" id="prerender-jsonld">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Absolute Security with No Trust",
+  "description": "A post about the promise and limits of absolute security without trusting third parties.",
+  "datePublished": "2019-05-05T07:00:00-07:00",
+  "url": "https://arash-afshar.github.io/blog/absolute-security-with-no-trust/",
+  "mainEntityOfPage": "https://arash-afshar.github.io/blog/absolute-security-with-no-trust/",
+  "author": {
+    "@type": "Person",
+    "name": "Arash Afshar",
+    "url": "https://arash-afshar.github.io"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Arash Afshar",
+    "url": "https://arash-afshar.github.io"
+  },
+  "keywords": "security, theory"
+}
+    </script>
+</head>
   <body data-post-slug="absolute-security-with-no-trust">
     <div class="site-shell" id="content-root">
       <header class="site-header" id="site-header"></header>
       <main class="article-shell">
         <section class="article-header">
           <h1 id="article-title">Absolute Security with No Trust</h1>
-          <p class="article-description" id="article-description"></p>
-          <div class="post-meta" id="article-meta"></div>
+          <p class="article-description" id="article-description">A post about the promise and limits of absolute security without trusting third parties.</p>
+          <div class="post-meta" id="article-meta"><span>May 5, 2019</span><span class="pill">security</span><span class="pill">theory</span></div>
         </section>
-        <article class="markdown-body" id="article-body"></article>
+        <article class="markdown-body" id="article-body" data-prerendered="true">
+<p>Designing and implementing secure software solutions usually involves a discussion about the level of security and the effort and cost of achieving that level of security. The cost and effort are a function of the upfront cost of development, time to market, and the cost of fixing the security problem when they are exploited. Depending on the product, the company, and the severity of the problem, the later cost could also involve regaining the trust of the customers (e.g., numerous security breaches of <a href="https://techcrunch.com/2018/09/28/everything-you-need-to-know-about-facebooks-data-breach-affecting-50m-users/" target="_blank" rel="noreferrer">Facebook</a>) or losing a significant part of the business as in the case of <a href="https://krebsonsecurity.com/2019/02/email-provider-vfemail-suffers-catastrophic-hack/" target="_blank" rel="noreferrer">VFEmail</a>. Based on the risk tolerance and other factors, software products fall somewhere in the following spectrum of security.</p>
+<ul><li>No security! It is fast, easy, and cheap to develop but carries significant risk and will require</li></ul>
+<p>a huge cost to make it secure later.</p>
+<ul><li>Some levels of security have been considered and implemented and the rest is protected with NDAs</li></ul>
+<p>or other non-technical means.</p>
+<ul><li>Absolute security without trusting any third-party (more formally known as Information-theoretic</li></ul>
+<p>security or Unconditional security). In this post, I will talk about the last item and discuss how feasible or practical it is. I will argue that although absolute security is not possible in practice, it is important that we put effort in research in fields such as "Secure Multiparty Computation" to provide the tools necessary for making a reasonable compromise with regard to security of the product and the amount of things that we have to trust. Let's start with a simple example to demonstrate if absolute security is achievable or not. In this example, we have a <code>client</code> which wants to encrypt the a <code>secret file</code> and outsource it to a <code>cloud</code> for storage such that the cloud can never find the content of the file.</p>
+<h2 id="theory">Theory</h2>
+<p>You can achieve information-theoretic security by using a simple <code>XOR</code> function. Consider the case where the content of the <code>secret file</code> is a binary string <code>101010</code>. Now assume the client has picked a password which is also a binary string, say <code>100101</code>. The client XORs the file content with the password (using the following function) and sends the result to the cloud.</p>
+<pre data-language="python"><code>def encrypt(content, password):
+  m = int(content, 2)
+  k = int(password, 2)
+  c = m ^ k
+  return "{0:b}".format(c).zfill(6)
+encrypt("101010", "100101")
+#=&gt; prints '001111'</code></pre>
+<p><em>Why is this way of encryption secure?</em> Assume you are the cloud and you have received <code>001111</code> from the client. Also assume that you have unlimited CPU and memory and you decide to try all possible passwords (i.e., perform a brute-force attack) to find the content of the secret file. You notice that the message is 6 characters long and therefore you try all the passwords between <code>000000</code> to <code>111111</code> using the following function.</p>
+<pre data-language="python"><code>def brute_force(secret):
+  c = int(secret, 2)
+  possible_results = []
+  for possible_password in xrange(int("111111", 2)+1):
+    possibility = "{0:b}".format(possible_password ^ c)
+    possible_results.append(possibility.zfill(6))
+  return possible_results
+brute_force("001111")
+#=&gt; Can you guess what it prints?</code></pre>
+<p>If you run this function, you will notice that it is printing all values between <code>000000</code> and <code>111111</code>. In other words, it will print all the possible contents of the secret file! This means that brute-forcing did not help at all and you (i.e., the cloud) still have no idea which of the possibilities is more likely! This is what we call information-theoretic security: regardless of your computation power, the best you can do is <strong>guess</strong> which one of all the possible contents is the answer. Alright, we have achieved information-theoretic security and we are done, right? No! We have yet to examine the practical side.</p>
+<h2 id="practice">Practice</h2>
+<p>In our brute-force example, the cloud is looking for the correct answer among all the possibilities. An observant reader might have noticed that the content of the <code>secret file</code> is <code>101010</code> or <code>42</code> and of course <a href="https://en.wikipedia.org/wiki/The_Hitchhiker%27s_Guide_to_the_Galaxy" target="_blank" rel="noreferrer">42 is the answer</a>. Joking aside, this shows an attack when the attacker has some knowledge about the form of the secret. Even if we do not consider this type of attack, there can still be problems with the implementations. For example, consider the following implementation of the encryption function.</p>
+<pre data-language="python"><code>def bad_encrypt(content, password):
+  m = int(content, 2)
+  k = int(password, 2)
+  c = m ^ k
+  print "DEBUG: Encrypting {0} with {1} resulting in {2}".format(m, k, c)
+  return "{0:b}".format(c).zfill(6)
+bad_encrypt("101010", "100101")
+#=&gt; prints DEBUG: Encrypting 42 with 37 resulting in 15
+#          '001111'</code></pre>
+<p>hmmm, that does not look very secure! As is evident, even when using algorithms that give you information-theoretic security, you are still <em>trusting</em> that the developers have implemented a secure program. Now, let's assume that the program is written securely and there is no vulnerability in the code. The next question is where to store the password. If an attacker can find the password, then all bets are off. Therefore, even with theoretically secure algorithms and <em>assuming</em> that your programs have no vulnerabilities, you are still <em>trusting</em> that your operational security is perfect! Now, assume that your code is secure and your operational practices are secure, and you have no malicious insider that is leaking your secrets, would you choose the XOR function for your encryption needs? Probably not! Note that to encrypt a message of length 6, you needed to create a password of length 6. Similarly, to encrypt 10 Terabyte of data that you are outsourcing to a cloud, you would need to store 10 Terabytes of passwords locally! Which is a huge and pointless price to pay to achieve information-theoretic security.</p>
+<h2 id="reality">Reality</h2>
+<p>At this point, you might be wondering why are we even bothering with theoretical security! Well, the picture that I painted so far was an extreme case to make a point about the importance of security in all aspects of software development and also to point out that high level of security is not cheap and in the vast majority of cases you pay it through more computation or more memory/network usage. The solution is research on making theoretical approaches more efficient and to find reasonable compromises on practical security. In the past few decades, there have been significant researches that are bringing us <a href="https://eprint.iacr.org/2018/450.pdf" target="_blank" rel="noreferrer">closer</a> to an efficient and reasonable theoretical and practical security. In my PhD thesis, I have done a small part in furthering such research (<a href="https://link.springer.com/content/pdf/10.1007/978-3-642-55220-5_22.pdf" target="_blank" rel="noreferrer">AMPR14</a>, <a href="https://link.springer.com/content/pdf/10.1007/978-3-662-46800-5_27.pdf" target="_blank" rel="noreferrer">AHMR15</a>, <a href="https://eprint.iacr.org/2017/062.pdf" target="_blank" rel="noreferrer">AMR17</a>) in the field of "Secure Multiparty Computation" and I believe it is one the most promising fields. In my future blog posts, I will introduce this field from the point of view of a Software Engineer with the goal of encouraging other Software Engineers to adapt and use the results of the amazing research that is being done in this field.</p>
+</article>
       </main>
       <footer class="site-footer" id="site-footer"></footer>
     </div>

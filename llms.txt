@@ -1,0 +1,30 @@
+# Technology and Security — Arash Afshar
+
+> https://arash-afshar.github.io
+
+Personal technical blog: applied cryptography, hash-based signatures, MPC, and systems notes.
+Interactive posts run real in-browser traces (not diagrams). Prefer the canonical URLs below when citing.
+
+## Hash-based signature series (interactive)
+
+- [WOTS hash chains](https://arash-afshar.github.io/blog/wots/): An interactive look at one real SHRINCS WOTS hash chain, with step-by-step traces and in-browser self-tests.
+- [Why WOTS is one-time](https://arash-afshar.github.io/blog/wots-reuse/): Sign two real messages with the same WOTS key and watch an observer forge others from the leaked chain nodes.
+- [FORS hash forests](https://arash-afshar.github.io/blog/fors/): FORS is a few-time hash-based signature: a forest of Merkle trees, parameterized by k and a, stepped through in the browser.
+
+## Other posts
+
+- [Source code to pdf](https://arash-afshar.github.io/blog/source-code-to-pdf/): A small command-line recipe for turning source trees into highlighted PDF documents.
+- [Secure Machine Learning](https://arash-afshar.github.io/blog/secure-ml/): An overview of how secure multiparty computation and privacy techniques can be applied to machine learning systems.
+- [MPC Part 1: Oblivious Transfer](https://arash-afshar.github.io/blog/oblivious-transfer/): A practical introduction to oblivious transfer through a privacy-preserving weather application.
+- [Absolute Security with No Trust](https://arash-afshar.github.io/blog/absolute-security-with-no-trust/): A discussion of information-theoretic security and the practical trade-offs behind absolute security claims.
+
+## Pages
+
+- [About](https://arash-afshar.github.io/about/)
+- [Blog index](https://arash-afshar.github.io/blog/)
+
+## Machine-readable index
+
+- Content index JSON: https://arash-afshar.github.io/content/content-index.json
+- Sitemap: https://arash-afshar.github.io/sitemap.xml
+

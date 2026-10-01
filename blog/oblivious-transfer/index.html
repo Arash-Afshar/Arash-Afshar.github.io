@@ -12,17 +12,100 @@
     <link rel="stylesheet" href="/assets/styles.css">
     <script defer src="/assets/markdown.js"></script>
     <script defer src="/assets/site.js"></script>
-  </head>
+              <script type="application/ld+json" id="prerender-jsonld">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "MPC Part 1: Oblivious Transfer",
+  "description": "An introduction to oblivious transfer with examples, code snippets, and a motivating application.",
+  "datePublished": "2019-05-13T10:00:00-07:00",
+  "url": "https://arash-afshar.github.io/blog/oblivious-transfer/",
+  "mainEntityOfPage": "https://arash-afshar.github.io/blog/oblivious-transfer/",
+  "author": {
+    "@type": "Person",
+    "name": "Arash Afshar",
+    "url": "https://arash-afshar.github.io"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Arash Afshar",
+    "url": "https://arash-afshar.github.io"
+  },
+  "keywords": "oblivious transfer, security"
+}
+    </script>
+</head>
   <body data-post-slug="oblivious-transfer">
     <div class="site-shell" id="content-root">
       <header class="site-header" id="site-header"></header>
       <main class="article-shell">
         <section class="article-header">
           <h1 id="article-title">MPC Part 1: Oblivious Transfer</h1>
-          <p class="article-description" id="article-description"></p>
-          <div class="post-meta" id="article-meta"></div>
+          <p class="article-description" id="article-description">An introduction to oblivious transfer with examples, code snippets, and a motivating application.</p>
+          <div class="post-meta" id="article-meta"><span>May 13, 2019</span><span class="pill">oblivious transfer</span><span class="pill">security</span></div>
         </section>
-        <article class="markdown-body" id="article-body"></article>
+        <article class="markdown-body" id="article-body" data-prerendered="true">
+<p>Consider a weather app that you have on your phone. For most users, this app records the current GPS location, sends it to a server and receives and displays the temperature of the user's location. This means that if the server chooses to, it can create a profile of the user location history and track their movement which is a breach of privacy for most users. Therefore, a privacy-aware user might want to obtain weather information without sharing their location. Let's call this <em>User Security Property</em>. Designing an application that satisfies this security property is very easy. In fixed intervals, the server sends all the weather information it has for all the cities and regions from all over the world to the user's device and the user does a local lookup to find the weather information that is interesting to them. As you can see, with this approach the server has no way of knowing the user's location. Unfortunately, this approach has two main problems.</p>
+<ol><li>The amount of data that is sent to the user's device is too large.</li><li>More importantly, the user learns all the weather information which is the backbone of the</li></ol>
+<p>business that the server is running. Therefore, we are interested in a solution that is fast and efficient enough to be used in practice (this is a very subjective criterion and depends on the use case). We are also interested in a solution that protects the privacy of the server and only sends the temperature of the city that the user has asked for. Let's call this <em>Server Security Property</em>. To sum up, we have two parties, a server and a user. The server has a list of private temperature data and the user has a private input which indicates the city that the user is interested in. We would like to offer this functionality such that the <em>User Security Property</em> and <em>Server Security Property</em> are satisfied and that the solution is more efficient than sending all the server data to the user.</p>
+<figure class="image-block"><img alt="requirements.png" src="/assets/ot_requirements.png" loading="lazy"></figure>
+<p><a href="https://crypto.stanford.edu/pbc/notes/crypto/ot.html" target="_blank" rel="noreferrer">Oblivious Transfer</a> can help with achieving this goal. To describe Oblivious Transfer (OT), we first consider a simple case where the server only holds the weather information about <strong>two</strong> cites and the user chooses one of those cities. This case is called <em>1-out-of-2 OT</em>. In what follows, I'll describe the theory and some code snippets and then describe how to extend it to more than two cities.</p>
+<h1 id="theory">Theory</h1>
+<p>One of the simplest OTs (specially if you know Diffie-Hellman key exchange protocol) is proposed by <a href="https://eprint.iacr.org/2015/267.pdf" target="_blank" rel="noreferrer">Chou, Orlandi 2015</a>. The overall protocol is shown in the figure below. But it is not immediately clear what is happening there and what are <code>a</code>, <code>b</code>, <code>g</code>, <code>Hash</code>,<code>Encrypt</code>, and <code>Decrypt</code>.</p>
+<figure class="image-block"><img alt="simple_ot.png" src="/assets/simple_ot.png" loading="lazy"></figure>
+<h2 id="what-is-g">What is <code>g</code>?</h2>
+<p><code>g</code> is the generator of a "simple group" of prime order <code>p</code>. For example, consider the group of Z<sub>11</sub> which is a group of prime order 11 and therefore has <code>11-1</code> members <code>{1,2,...,10}</code>. This is a cyclic group if you consider <code>g=2</code> since you can create all the members of the group by starting from 2 and keep multiplying it by 2. In other words {2<sup>1</sup>,2<sup>2</sup>,2<sup>3</sup>, ..., 2<sup>10</sup>} module 10 produces the same set as <code>{1,2,...,10}</code>. To see it for yourself, run the following program.</p>
+<pre data-language="python"><code>def generate_group(g, p):
+  # Using list to show that there are not duplications
+  members = list()
+  for i in xrange(1,p):
+    members.append(g**i % p)
+  return sorted(members)
+generate_group(2, 11)
+# =&gt; prints [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]</code></pre>
+<h2 id="what-are-a-and-b">What are <code>a</code> and <code>b</code>?</h2>
+<p><code>a</code> and <code>b</code> are two integers that are selected at random from the Z<sub>11</sub>. Note that both of these values appear as the exponents of <code>g</code> and therefore g<sup>a</sup> and g<sup>b</sup> result in a member of the cyclic group.</p>
+<h2 id="what-are-hash-and-encryptdecrypt">What are <code>Hash</code> and <code>Encrypt/Decrypt</code>?</h2>
+<p>The proper definition of the <code>Hash</code> and <code>Encrypt</code> functions can be found in the paper, but for our purposes assume <code>Hash</code> is <code>SHA1</code> and <code>Encrypt/Decrypt</code> is a symmetric key encryption scheme such as <code>AES</code>.</p>
+<h2 id="does-the-protocol-work">Does the Protocol Work?</h2>
+<p>To show that this protocol is doing what it claims, let's follow it with an example. In this example, we use the same group Z<sub>11</sub> and with <code>g=2</code> as its generator. Also, assume that <code>a=4</code> is <a href="https://xkcd.com/221/" target="_blank" rel="noreferrer">chosen uniformly at random</a> and similarly, <code>b=7</code> is chosen uniformly at random. The following code computes the steps required for the user to obtain k and for the server to obtain k<sub>0</sub> and k<sub>1</sub>. You will notice that if the user sets <code>c=0</code>, then k will be the same as k<sub>0</sub> and if the user sets <code>c=1</code>, then k will be equal to k<sub>1</sub>. Therefore, the user can either decrypt e<sub>0</sub> or e<sub>1</sub> based on their choice, but they CANNOT decrypt both.</p>
+<pre data-language="python"><code># multiplies x to the inverse of y
+def div(x, y, p):
+  xp = x % p
+  yip = pow(y, p-2, p)
+  return (xp * yip) % p
+def examine_case_c_0(g, a, b, p):
+  A=pow(g, a, p)
+  B=pow(g, b, p)
+  k=pow(A, b, p)
+  k0=pow(B, a, p)
+  k1=pow(div(B, A, p), a, p)
+  print(k, k0, k1, k == k0)
+def examine_case_c_1(g, a, b, p):
+  A=pow(g, a, p)
+  B=(A * pow(g, b, p)) % p
+  k=pow(A, b, p)
+  k0=pow(B, a, p)
+  k1=pow(div(B, A, p), a, p)
+  print(k, k0, k1, k == k1)
+examine_case_c_0(2, 4, 7, 11)
+# =&gt; (3, 3, 4, True)
+examine_case_c_1(2, 4, 7, 11)
+# =&gt; (3, 5, 3, True)</code></pre>
+<p>So far, we have <em>demonstrated</em> that the protocol is correct. To actually <em>prove</em> its correctness, you can just write down the formulas and go through the math. Next, we will talk about the security of the protocol and try to argue that it satisfies both of the security requirements.</p>
+<h2 id="is-the-protocol-secure">Is the Protocol Secure?</h2>
+<p>To examine the security of the protocol, imagine that you are the attacker and see what you can do! For example, let's assume that you are the server and your goal is to find out the user's choice of the city. Looking at the protocol, you'll notice that as the server you are getting only one message. Depending on the user choice, you either get B=g<sup>b</sup> or B=Ag<sup>b</sup>. Therefore, if you can somehow identify which message you got, you have succeeded in your attack. Let's consider a couple of different ways that you can perform your attack. In other words, we want to find ways that we can violate <em>User Security Properties</em>. Our attacks will involve finding or guessing <code>b</code>. Note that both the user and the server know <code>g</code>. Therefore, if we can find/guess <code>b</code>, then we can compute g<sup>b</sup> and compare the result with B. If they are the same, we know that the user has chosen city<sub>0</sub>. We (the server) can perform this attack in two ways.</p>
+<ol><li>By finding a flaw in the way <code>b</code> is generated: if the user chooses <code>b</code> randomly and</li></ol>
+<p>implement the random gen code properly, then the user is safe against this type of attack. Therefore, we define <em>User Security Requirement 1: Use secure random to choose "b" and do not reuse "b"</em>.</p>
+<ol><li>By trying all possible values of <code>b</code> (i.e., a brute-force attack). If our cyclic group is big</li></ol>
+<p>enough, then this attack would be impractical. Therefore, we define <em>User Security Requirement 2: Choose a large enough cyclic group such that brute-forcing "b" is impractical for the duration that "b" is valid.</em>. We can also make the same kind of arguments about the requirements for satisfying <em>Server Security Property</em> which I leave for you to explore and think about. In particular, I encourage you to read about the hardness property of the <a href="https://crypto.stanford.edu/pbc/notes/crypto/factoring.html" target="_blank" rel="noreferrer">discrete logarithm problem</a> and how it relates to Diffie-Hellman problem. From the above arguments, we have identified that to satisfy <em>User Security Property</em>, the protocol implementation must be configured such that it satisfies the following requirements.</p>
+<ul><li>The implementation must generate <code>b</code> using secure random every time.</li><li>The implementation must use a cyclic group with a very large size to prohibit the brute-force attack.</li></ul>
+<p>Now, are these arguments enough to prove security and more importantly, is the approach that we have taken so far a good approach for proving security? The above arguments are informal and are not accurate. For example, we have not defined the "large enough" size for the cyclic group, nor have we defined the "hardness" property of the discrete logarithm in the cyclic group. Moreover, we have described the random number generator as "secure" without specifying what it means. Nevertheless, this approach towards proving the security is a correct approach and it is how real proofs look like. Namely, going over each message that a party receives and proving that the message leaks no information about the private input of the parties. I will write about the proof model in a separate post, in the meantime, you can read about them in a concise <a href="https://eprint.iacr.org/2016/046.pdf" target="_blank" rel="noreferrer">tutorial by Yehuda Lindell</a>, or get a more in-depth knowledge by reading the wonderful books by Oded Goldreich, Foundations of Cryptography, Vol I and II.</p>
+<h1 id="back-to-the-application">Back to the Application</h1>
+<p>We started with the goal of creating a weather reporting service that preserves the privacy of the user and the server and introduced Oblivious Transfer (OT) as a potential solution. We then showed how an OT protocol can be designed for the case where the server has only two city temperatures and the user chooses one of them (1-out-of-2 OT). Now, we want to <strong>extend</strong> this to a 1-out-of-n OT for some large n. A naive approach is to create a network of 1-out-of-2 OT, where each pair of initial temperatures are fed to an OT and then create another layer of OTs such the output of each pair of OTs from the first layer is fed to an OT in the second layer and so on. This forms a binary tree and requires approximately n OTs. There are much faster <a href="https://eprint.iacr.org/2016/799.pdf" target="_blank" rel="noreferrer">solutions</a> which can achieve this with a constant number of 1-out-2 OTs. At last, the following code shows an implementation of this application using <a href="https://github.com/osu-crypto/libOTe" target="_blank" rel="noreferrer">libOTe</a>. You can find a docker file which sets up and runs this program on <a href="https://github.com/Arash-Afshar/secure_multiparty_computation_examples/blob/master/weather_app_with_ot" target="_blank" rel="noreferrer">my repo</a>.</p>
+<h1 id="final-remarks">Final Remarks</h1>
+<p>Similar to the previous post, just implementing a secure protocol is not enough and there are much more things that one need to take into account. For example, on preserving the privacy of the user, note that the user's location can be found (or at least estimated) through the source IP or network delays. Moreover, based on the frequency of the weather checks and the requests to the server, the server can guess whether the user is traveling on the road or not. Nevertheless, using a secure protocol is far better than a non-secure one.</p>
+</article>
       </main>
       <footer class="site-footer" id="site-footer"></footer>
     </div>

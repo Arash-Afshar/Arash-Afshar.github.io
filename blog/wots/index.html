@@ -13,18 +13,42 @@
     <link rel="stylesheet" href="/assets/wots/styles.css">
     <script defer src="/assets/markdown.js"></script>
     <script defer src="/assets/site.js"></script>
-  </head>
+              <script type="application/ld+json" id="prerender-jsonld">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "WOTS hash chains",
+  "description": "Sign a message with WOTS-TW and step through real hash chains: digits, checksum, signatures, and public tips.",
+  "datePublished": "2026-09-30T10:00:00-06:00",
+  "url": "https://arash-afshar.github.io/blog/wots/",
+  "mainEntityOfPage": "https://arash-afshar.github.io/blog/wots/",
+  "author": {
+    "@type": "Person",
+    "name": "Arash Afshar",
+    "url": "https://arash-afshar.github.io"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Arash Afshar",
+    "url": "https://arash-afshar.github.io"
+  },
+  "keywords": "post-quantum, signatures, interactive"
+}
+    </script>
+</head>
   <body data-post-slug="wots">
     <div class="site-shell" id="content-root">
       <header class="site-header" id="site-header"></header>
       <main class="article-shell">
         <section class="article-header">
           <h1 id="article-title">WOTS hash chains</h1>
-          <p class="article-description" id="article-description"></p>
-          <div class="post-meta" id="article-meta"></div>
+          <p class="article-description" id="article-description">Sign a message with WOTS-TW and step through real hash chains: digits, checksum, signatures, and public tips.</p>
+          <div class="post-meta" id="article-meta"><span>September 30, 2026</span><span class="pill">post-quantum</span><span class="pill">signatures</span><span class="pill">interactive</span></div>
         </section>
         <section id="wots-demo" class="wots-demo" aria-label="Interactive WOTS hash chain"></section>
-        <article class="markdown-body" id="article-body"></article>
+        <article class="markdown-body" id="article-body" data-prerendered="true">
+<p>If you have been reading about post-quantum cryptography, you have probably come across <strong>one-time signatures</strong>. WOTS, the Winternitz One-Time Signature scheme, builds a signature from many one-way hash chains. A message decides how far along each chain the signer reveals a value; the verifier hashes forward from there to the public endpoint. The interactive demo above signs a real 16-byte message with <strong>WOTS-TW</strong>: it splits the message into 4-bit digits, derives a checksum, walks each of the 35 hash chains with the SHRINCS <code>PRF</code> / <code>F</code> primitives, and assembles the signature from the revealed nodes. Use <strong>Next</strong> / <strong>Prev</strong> (or <strong>Play</strong>) to step through that process — every displayed value comes from an in-browser execution trace, not a toy diagram. Later posts in this series will add other parts of SPHINCS and SHRINCS protocols. Next: <a href="/blog/wots-reuse/">why signing twice with the same WOTS key is fatal</a>, then <a href="/blog/fors/">FORS hash forests</a>.</p>
+</article>
       </main>
       <footer class="site-footer" id="site-footer"></footer>
     </div>

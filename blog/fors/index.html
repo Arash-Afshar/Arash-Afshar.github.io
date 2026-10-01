@@ -6,7 +6,7 @@
     <title>FORS hash forests | Technology and Security</title>
     <meta
       name="description"
-      content="Sign a message with SHRINCS FORS and step through a forest of Merkle trees: indexes, secrets, auth paths, and the public key."
+      content="In contrast to one-time WOTS, FORS lets you sign a few times. Walk indexes, secrets, auth paths, and the public key in an interactive forest."
     >
     <link rel="canonical" href="https://arash-afshar.github.io/blog/fors/">
     <link rel="stylesheet" href="/assets/styles.css">
@@ -14,18 +14,44 @@
     <link rel="stylesheet" href="/assets/fors/styles.css">
     <script defer src="/assets/markdown.js"></script>
     <script defer src="/assets/site.js"></script>
-  </head>
+              <script type="application/ld+json" id="prerender-jsonld">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "FORS hash forests",
+  "description": "In contrast to one-time WOTS, FORS lets you sign a few times. Walk indexes, secrets, auth paths, and the public key in an interactive forest.",
+  "datePublished": "2026-10-02T09:00:00-06:00",
+  "url": "https://arash-afshar.github.io/blog/fors/",
+  "mainEntityOfPage": "https://arash-afshar.github.io/blog/fors/",
+  "author": {
+    "@type": "Person",
+    "name": "Arash Afshar",
+    "url": "https://arash-afshar.github.io"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Arash Afshar",
+    "url": "https://arash-afshar.github.io"
+  },
+  "keywords": "post-quantum, signatures, interactive"
+}
+    </script>
+</head>
   <body data-post-slug="fors">
     <div class="site-shell" id="content-root">
       <header class="site-header" id="site-header"></header>
       <main class="article-shell">
         <section class="article-header">
           <h1 id="article-title">FORS hash forests</h1>
-          <p class="article-description" id="article-description"></p>
-          <div class="post-meta" id="article-meta"></div>
+          <p class="article-description" id="article-description">In contrast to one-time WOTS, FORS lets you sign a few times. Walk indexes, secrets, auth paths, and the public key in an interactive forest.</p>
+          <div class="post-meta" id="article-meta"><span>October 2, 2026</span><span class="pill">post-quantum</span><span class="pill">signatures</span><span class="pill">interactive</span></div>
         </section>
         <section id="fors-demo" class="wots-demo fors-demo" aria-label="Interactive FORS forest"></section>
-        <article class="markdown-body" id="article-body"></article>
+        <article class="markdown-body" id="article-body" data-prerendered="true">
+<p>In contrast to <a href="/blog/wots/">WOTS</a>, which is a <strong>one-time</strong> signature, <strong>FORS</strong> (Forest of Random Subsets) is a <strong>few-time</strong> scheme: you can safely sign more than once with the same key, as long as you stay within a budget the parameters were chosen for. See <a href="/blog/wots-reuse/">why WOTS cannot be reused</a> for the one-time side of that tradeoff. A FORS keypair is a <em>forest</em> of Merkle trees. Two parameters set its shape:</p>
+<ul><li><strong><code>k</code></strong> — how many trees are in the forest (and how many leaves a signature reveals).</li><li><strong><code>a</code></strong> — the height of each tree, so each tree has 2<sup>a</sup> leaves.</li></ul>
+<p>The public key is a hash of all <code>k</code> tree roots. Secrets live at the leaves: each leaf is the hash of a private preimage. To sign, hash the message into <code>k</code> indexes of <code>a</code> bits each. Index <code>i</code> picks one leaf in tree <code>i</code>. The signature publishes that leaf’s secret preimage together with the Merkle authentication path up to the root. The verifier hashes the preimage into a leaf, climbs the path to rebuild each root, then checks that those roots compress to the public key. So where WOTS walks <em>along</em> hash chains, FORS <em>selects</em> leaves in a forest and proves they belong under published roots. Larger <code>k</code> and <code>a</code> mean more leaves to choose from — and more room to sign a few messages before the revealed set gets dangerous. The demo above uses a small forest (<code>k=4</code>, <code>a=3</code>) so every node fits on screen; step through with <strong>Next</strong> / <strong>Prev</strong> (or <strong>Play</strong>).</p>
+</article>
       </main>
       <footer class="site-footer" id="site-footer"></footer>
     </div>

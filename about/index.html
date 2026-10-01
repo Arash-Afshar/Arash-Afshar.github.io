@@ -12,7 +12,21 @@
     <link rel="stylesheet" href="/assets/styles.css">
     <script defer src="/assets/markdown.js"></script>
     <script defer src="/assets/site.js"></script>
-  </head>
+              <script type="application/ld+json" id="prerender-jsonld">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "About",
+  "url": "https://arash-afshar.github.io/about/",
+  "description": "",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "Technology and Security",
+    "url": "https://arash-afshar.github.io"
+  }
+}
+    </script>
+</head>
   <body data-page-id="about">
     <div class="site-shell" id="content-root">
       <header class="site-header" id="site-header"></header>
@@ -22,7 +36,9 @@
           <p class="article-description" id="article-description"></p>
           <div class="post-meta" id="article-meta"></div>
         </section>
-        <article class="markdown-body" id="article-body"></article>
+        <article class="markdown-body" id="article-body" data-prerendered="true">
+<p>I am a Senior Staff Applied Cryptographer on the Applied Cryptography team at <a href="https://www.coinbase.com/" target="_blank" rel="noreferrer">Coinbase</a>. I research and design cryptographic protocols (zero-knowledge proofs, MPC, threshold signing, and related primitives), prove their security, and help turn them into production systems—including Coinbase’s core cryptography library <a href="https://github.com/coinbase/cb-mpc" target="_blank" rel="noreferrer"><code>cb-mpc</code></a> and the MPC framework that secures Coinbase Wallet. Previously, I was a Senior Cryptography Engineer at <a href="http://polymath.network/" target="_blank" rel="noreferrer">Polymath</a>, working on ZKP-based solutions for Polymesh, and before that a Team Lead / Senior Software Engineer on the Private Cloud team at <a href="https://www.cisco.com/" target="_blank" rel="noreferrer">Cisco</a>. I received my PhD in Computer Science from <a href="https://www.ucalgary.ca/icis/" target="_blank" rel="noreferrer">University of Calgary</a> on <a href="https://prism.ucalgary.ca/handle/11023/3899" target="_blank" rel="noreferrer">Design and Implementation of Maliciously Secure Two-Party Computation</a>. I deeply care about security and software engineering, in particular how to create novel and practical software solutions and protect the privacy of the user without asking them to put a huge amount of trust on third party companies. The contents of this blog are my personal opinions and does not necessarily reflect the opinions of my employers. Moreover, as I learn more and evolve, my opinions and world views changes evolve (hopefully for the better).</p>
+</article>
       </main>
       <footer class="site-footer" id="site-footer"></footer>
     </div>

@@ -12,17 +12,49 @@
     <link rel="stylesheet" href="/assets/styles.css">
     <script defer src="/assets/markdown.js"></script>
     <script defer src="/assets/site.js"></script>
-  </head>
+              <script type="application/ld+json" id="prerender-jsonld">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Source code to pdf",
+  "description": "A compact walkthrough for concatenating code, highlighting it with Pygments, and exporting a PDF.",
+  "datePublished": "2020-12-18T22:00:00-07:00",
+  "url": "https://arash-afshar.github.io/blog/source-code-to-pdf/",
+  "mainEntityOfPage": "https://arash-afshar.github.io/blog/source-code-to-pdf/",
+  "author": {
+    "@type": "Person",
+    "name": "Arash Afshar",
+    "url": "https://arash-afshar.github.io"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Arash Afshar",
+    "url": "https://arash-afshar.github.io"
+  },
+  "keywords": "cli"
+}
+    </script>
+</head>
   <body data-post-slug="source-code-to-pdf">
     <div class="site-shell" id="content-root">
       <header class="site-header" id="site-header"></header>
       <main class="article-shell">
         <section class="article-header">
           <h1 id="article-title">Source code to pdf</h1>
-          <p class="article-description" id="article-description"></p>
-          <div class="post-meta" id="article-meta"></div>
+          <p class="article-description" id="article-description">A compact walkthrough for concatenating code, highlighting it with Pygments, and exporting a PDF.</p>
+          <div class="post-meta" id="article-meta"><span>December 18, 2020</span><span class="pill">cli</span></div>
         </section>
-        <article class="markdown-body" id="article-body"></article>
+        <article class="markdown-body" id="article-body" data-prerendered="true">
+<p>TL;DR concatenate all the files into one gigantic file, apply syntax highlighting and convert to html using <code>pygmentize</code>. Convert the html file to pdf using <code>wkhtmltopdf</code>. It does not happen very often, but once in a while some of my clients want their code in pdf format and every time I search the web and piece together a bunch of bash commands and then completely forget it the next time I need it. So, this time I decided to document it here, mostly for myself, but hopefully it will useful for others as well. So here it goes! The idea is to use <a href="https://pygments.org" target="_blank" rel="noreferrer">pygments</a> to do the syntax highlighting and create an html file and then create a pdf file from the result.</p>
+<pre data-language="bash"><code># I used it for Go files, but pygments supports a large number of programming languages.
+find project_dir -type f -name "*.go"  -exec echo {} &gt;&gt; file_list \;
+# Now that we have the list of files, need to add separators and concatenate them all
+cat file_list | sed 's/\(.*\)/echo "#-----------------------NEW FILE--------------------------- \1" &gt;&gt; single_file.go \&amp;\&amp; cat \1 &gt;&gt; single_file.go \&amp;\&amp; echo "" &gt;&gt; single_file.go/g' &gt; run.sh
+bash run.sh
+# Convert to html and then to pdf
+pygmentize -l go -f html -O full,style=emacs single_file.go &gt; single_file.html &amp;&amp; wkhtmltopdf single_file.html single_file.pdf
+ls single_file.pdf</code></pre>
+</article>
       </main>
       <footer class="site-footer" id="site-footer"></footer>
     </div>
