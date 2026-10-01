@@ -1,0 +1,170 @@
+/* FORS forest visualization — chrome comes from /assets/wots/styles.css */
+
+.fors-demo .fors-phase-bar {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.fors-forest {
+  margin-top: 0.15rem;
+}
+
+.fors-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem 1.2rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.68rem;
+  color: var(--wots-muted);
+}
+
+.fors-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--wots-border);
+  background: var(--wots-code);
+  vertical-align: middle;
+  margin-right: 0.25rem;
+}
+
+.fors-swatch--leaf {
+  border-color: var(--wots-warm);
+  background: rgba(201, 165, 84, 0.85);
+}
+
+.fors-swatch--sk {
+  border-color: #c4785a;
+  background: rgba(196, 120, 90, 0.85);
+}
+
+.fors-swatch--sib {
+  border-color: #6a9a9a;
+  background: rgba(106, 154, 154, 0.45);
+}
+
+.fors-swatch--path {
+  border-color: var(--wots-accent);
+  background: rgba(120, 130, 75, 0.4);
+}
+
+.fors-swatch--focus {
+  border-color: var(--wots-warm);
+  box-shadow: 0 0 0 1px rgba(201, 165, 84, 0.45);
+}
+
+.fors-trees {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.75rem;
+}
+
+.fors-tree {
+  border: 1px solid var(--wots-border);
+  border-radius: 10px;
+  padding: 0.65rem 0.55rem 0.5rem;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.fors-tree.is-focus-tree {
+  border-color: var(--wots-warm);
+  box-shadow: 0 0 0 1px rgba(201, 165, 84, 0.25);
+}
+
+.fors-tree-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.35rem;
+  margin-bottom: 0.55rem;
+  font-size: 0.78rem;
+}
+
+.fors-tree-head strong {
+  color: var(--wots-warm);
+}
+
+.fors-muted {
+  color: var(--wots-muted);
+}
+
+.fors-tree-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.fors-level {
+  display: grid;
+  grid-template-columns: repeat(var(--fors-level-count), minmax(0, 1fr));
+  gap: 2px;
+}
+
+.fors-level--sk {
+  margin-top: 0.2rem;
+  padding-top: 0.35rem;
+  border-top: 1px dashed rgba(196, 120, 90, 0.35);
+}
+
+.fors-node {
+  min-width: 0;
+  height: 1.35rem;
+  padding: 0;
+  border: 1px solid var(--wots-border);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--wots-faint);
+  font: inherit;
+  font-size: 0.55rem;
+  cursor: default;
+}
+
+.fors-node span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 1px;
+}
+
+.fors-node.is-selected {
+  border-color: rgba(201, 165, 84, 0.45);
+}
+
+.fors-node.is-leaf {
+  border-color: var(--wots-warm);
+  color: var(--wots-warm);
+  background: rgba(201, 165, 84, 0.18);
+}
+
+.fors-node.is-sk {
+  border-color: #c4785a;
+  color: #e8a88a;
+  background: rgba(196, 120, 90, 0.22);
+}
+
+.fors-node.is-sib {
+  border-color: #6a9a9a;
+  color: var(--wots-text);
+  background: rgba(106, 154, 154, 0.28);
+}
+
+.fors-node.is-path {
+  border-color: var(--wots-accent);
+  color: var(--wots-text);
+  background: rgba(120, 130, 75, 0.28);
+}
+
+.fors-node.is-focus {
+  box-shadow: 0 0 0 1px rgba(201, 165, 84, 0.55);
+}
+
+.fors-tree-foot {
+  margin-top: 0.45rem;
+  font-size: 0.65rem;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .fors-demo .fors-phase-bar {
+    grid-template-columns: 1fr 1fr;
+  }
+}

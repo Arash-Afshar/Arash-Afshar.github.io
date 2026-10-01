@@ -1,0 +1,369 @@
+/**
+ * FORS signing visualizer (SHRINCS algorithms, toy forest for display).
+ * Chrome matches the WOTS demo (shared wots-*.css classes).
+ */
+
+import { hexToBytes, bytesToHex } from "../wots/crypto/bytes.js";
+import { sha256 } from "../wots/crypto/sha256.js";
+import { FORS_DEMO, signFors } from "./crypto/fors.js";
+import { renderForsNarration } from "./ui/render-signing.js";
+import { renderForest } from "./ui/render-forest.js";
+import { buildForsSteps, viewModelAt, PHASE_COUNT } from "./ui/sign-steps.js";
+
+const DEMO = {
+  pkSeed: "000102030405060708090a0b0c0d0e0f",
+  skSeed: "101112131415161718191a1b1c1d1e1f",
+  keypairIndex: 7,
+  defaultMessage: "A Sample Message to Sign",
+};
+
+function byId(id) {
+  return document.getElementById(id);
+}
+
+function setStatus(el, text, kind) {
+  el.textContent = text;
+  el.dataset.kind = kind || "";
+}
+
+function ensureDemoShell(root) {
+  if (byId("overview-root")) {
+    return;
+  }
+
+  root.classList.add("wots-demo", "fors-demo");
+  root.innerHTML = `
+    <div class="wots-panel">
+      <div id="fors-message-anchor" class="wots-message-anchor">
+        <div class="wots-message-form">
+          <label class="wots-field">
+            <span>Message</span>
+            <input id="msg-input" type="text" spellcheck="false"
+              placeholder="Any text, or ${FORS_DEMO.digestBytes * 2} hex chars for the digest"
+              value="${DEMO.defaultMessage}">
+          </label>
+          <button type="button" id="btn-sign">Sign</button>
+          <button type="button" id="btn-example">Example</button>
+        </div>
+        <p class="wots-note" id="msg-hint">
+          Text is hashed with SHA-256 and truncated to ${FORS_DEMO.digestBytes} bytes
+          (enough bits for k·a indexes). Or paste ${FORS_DEMO.digestBytes * 2} hex chars.
+        </p>
+      </div>
+      <div class="wots-controls">
+        <button type="button" id="btn-prev-phase" disabled>⟵ Phase</button>
+        <button type="button" id="btn-prev" disabled>Prev</button>
+        <button type="button" id="btn-next" disabled>Next</button>
+        <button type="button" id="btn-next-phase" disabled>Phase ⟶</button>
+        <button type="button" id="btn-play" disabled>Play</button>
+        <button type="button" id="btn-pause" disabled>Pause</button>
+        <button type="button" id="btn-reset" disabled>Reset</button>
+        <label>
+          Step ms
+          <input id="speed" type="number" min="40" max="2000" step="20" value="160">
+        </label>
+      </div>
+      <p id="status"></p>
+      <p class="wots-note wots-shortcuts">Keys: <kbd>Space</kbd> play/pause · <kbd>←</kbd>/<kbd>→</kbd> step · <kbd>P</kbd>/<kbd>N</kbd> phase</p>
+      <div id="narration-root"></div>
+      <div id="overview-root"></div>
+    </div>
+
+    <div class="wots-panel">
+      <h2 class="section-title" style="font-size:1.2rem;margin:0 0 0.7rem">Key material</h2>
+      <p class="wots-note">
+        Fixed demo seeds (same as the WOTS posts). This page runs real SHRINCS FORS primitives
+        (<code>PRF</code>, <code>F</code>, <code>H</code>, <code>T_k</code>) on a small forest so every node is visible.
+      </p>
+      <dl id="seed-info" style="margin-top:0.8rem"></dl>
+    </div>
+  `;
+}
+
+async function parseDigest(raw) {
+  const trimmed = raw.trim();
+  const hexLen = FORS_DEMO.digestBytes * 2;
+  if (/^[0-9a-fA-F]+$/.test(trimmed) && trimmed.length === hexLen) {
+    return hexToBytes(trimmed);
+  }
+  if (trimmed.length === 0) {
+    throw new Error("message is empty");
+  }
+  const digest = await sha256(new TextEncoder().encode(trimmed));
+  return digest.slice(0, FORS_DEMO.digestBytes);
+}
+
+async function main() {
+  const mount = byId("fors-demo") || document.querySelector(".fors-demo");
+  if (!mount) {
+    return;
+  }
+  ensureDemoShell(mount);
+
+  const status = byId("status");
+  const narrationRoot = byId("narration-root");
+  const overviewRoot = byId("overview-root");
+  const msgInput = byId("msg-input");
+  const btnSign = byId("btn-sign");
+  const btnExample = byId("btn-example");
+  const btnPrev = byId("btn-prev");
+  const btnNext = byId("btn-next");
+  const btnPrevPhase = byId("btn-prev-phase");
+  const btnNextPhase = byId("btn-next-phase");
+  const btnPlay = byId("btn-play");
+  const btnPause = byId("btn-pause");
+  const btnReset = byId("btn-reset");
+  const speedInput = byId("speed");
+
+  byId("seed-info").innerHTML = `
+    <dt>pk_seed</dt><dd><code>${DEMO.pkSeed}</code></dd>
+    <dt>sk_seed</dt><dd><code>${DEMO.skSeed}</code></dd>
+    <dt>keypair index</dt><dd><code>${DEMO.keypairIndex}</code></dd>
+    <dt>demo params</dt><dd>k=${FORS_DEMO.k}, a=${FORS_DEMO.a}, leaves/tree=${FORS_DEMO.leavesPerTree}</dd>
+    <dt>SHRINCS params</dt><dd>k=10, a=13 (same algorithms)</dd>
+  `;
+
+  let trace = null;
+  let steps = [];
+  let stepIndex = 0;
+  let playing = false;
+  let playTimer = null;
+
+  function stopPlay() {
+    playing = false;
+    if (playTimer !== null) {
+      clearTimeout(playTimer);
+      playTimer = null;
+    }
+    btnPause.disabled = true;
+    btnPlay.disabled = !trace || stepIndex >= steps.length - 1;
+  }
+
+  function paintIdle() {
+    narrationRoot.innerHTML = `
+      <p class="wots-note">Press <strong>Sign</strong> to map the message onto a FORS forest and step through the signature.</p>
+    `;
+    overviewRoot.innerHTML = "";
+    btnPrev.disabled = true;
+    btnNext.disabled = true;
+    btnPrevPhase.disabled = true;
+    btnNextPhase.disabled = true;
+    btnPlay.disabled = true;
+    btnPause.disabled = true;
+    btnReset.disabled = true;
+  }
+
+  function setStep(index) {
+    if (!trace) {
+      return;
+    }
+    stepIndex = Math.max(0, Math.min(index, steps.length - 1));
+    const view = viewModelAt(trace, steps, stepIndex);
+    renderForsNarration(narrationRoot, view, trace, {
+      onPhase: (phase) => jumpToPhase(phase, { at: "end" }),
+    });
+    renderForest(overviewRoot, { trace, view });
+
+    btnPrev.disabled = stepIndex <= 0;
+    btnNext.disabled = stepIndex >= steps.length - 1;
+    btnPrevPhase.disabled = steps[stepIndex].phase <= 1;
+    btnNextPhase.disabled = steps[stepIndex].phase >= PHASE_COUNT;
+    btnReset.disabled = false;
+    btnPlay.disabled = playing || stepIndex >= steps.length - 1;
+    btnPause.disabled = !playing;
+  }
+
+  function jumpToPhase(phase, { at = "start" } = {}) {
+    if (!trace || phase < 1 || phase > PHASE_COUNT) {
+      return;
+    }
+    let idx = -1;
+    if (at === "end") {
+      for (let i = steps.length - 1; i >= 0; i -= 1) {
+        if (steps[i].phase === phase) {
+          idx = i;
+          break;
+        }
+      }
+    } else {
+      idx = steps.findIndex((s) => s.phase === phase);
+    }
+    if (idx >= 0) {
+      stopPlay();
+      setStep(idx);
+    }
+  }
+
+  function jumpPhase(delta) {
+    if (!trace) {
+      return;
+    }
+    const target = steps[stepIndex].phase + delta;
+    jumpToPhase(target, { at: delta < 0 ? "end" : "start" });
+  }
+
+  function togglePlayPause() {
+    if (playing) {
+      stopPlay();
+      setStatus(status, "Paused.", "ok");
+      return;
+    }
+    if (!trace || stepIndex >= steps.length - 1) {
+      return;
+    }
+    playing = true;
+    btnPlay.disabled = true;
+    btnPause.disabled = false;
+    setStatus(status, "Playing signing animation…", "busy");
+    const tick = () => {
+      if (!playing) {
+        return;
+      }
+      if (stepIndex >= steps.length - 1) {
+        stopPlay();
+        setStatus(status, "Animation finished.", "ok");
+        return;
+      }
+      setStep(stepIndex + 1);
+      const ms = Math.max(40, Number(speedInput.value) || 160);
+      playTimer = setTimeout(tick, ms);
+    };
+    tick();
+  }
+
+  async function doSign({ scrollToMessage = false } = {}) {
+    stopPlay();
+    btnSign.disabled = true;
+    setStatus(status, "Signing with real FORS (toy forest)…", "busy");
+    try {
+      const digest = await parseDigest(msgInput.value);
+      byId("msg-hint").textContent =
+        /^[0-9a-fA-F]+$/.test(msgInput.value.trim()) &&
+        msgInput.value.trim().length === FORS_DEMO.digestBytes * 2
+          ? `Using hex digest ${bytesToHex(digest)}`
+          : `Using SHA-256(text)[:${FORS_DEMO.digestBytes}] = ${bytesToHex(digest)}`;
+
+      trace = await signFors({
+        messageDigest: digest,
+        pkSeed: hexToBytes(DEMO.pkSeed),
+        skSeed: hexToBytes(DEMO.skSeed),
+        keypairIndex: DEMO.keypairIndex,
+      });
+      if (!trace.verified) {
+        throw new Error("internal verify failed");
+      }
+      steps = buildForsSteps(trace);
+      stepIndex = 0;
+      setStep(0);
+      setStatus(
+        status,
+        `Signed — σ = ${trace.signature.length} bytes, FORS pk ${trace.publicKeyShort}…`,
+        "ok"
+      );
+      if (scrollToMessage) {
+        const anchor = byId("fors-message-anchor");
+        if (anchor) {
+          requestAnimationFrame(() => {
+            anchor.scrollIntoView({ behavior: "smooth", block: "start" });
+          });
+        }
+      }
+    } catch (error) {
+      trace = null;
+      steps = [];
+      paintIdle();
+      setStatus(status, `Sign failed: ${error.message}`, "error");
+      console.error(error);
+    }
+    btnSign.disabled = false;
+  }
+
+  btnSign.addEventListener("click", () => {
+    doSign({ scrollToMessage: true });
+  });
+  btnExample.addEventListener("click", () => {
+    msgInput.value = DEMO.defaultMessage;
+  });
+  btnPrev.addEventListener("click", () => {
+    stopPlay();
+    setStep(stepIndex - 1);
+  });
+  btnNext.addEventListener("click", () => {
+    stopPlay();
+    setStep(stepIndex + 1);
+  });
+  btnPrevPhase.addEventListener("click", () => jumpPhase(-1));
+  btnNextPhase.addEventListener("click", () => jumpPhase(1));
+  btnReset.addEventListener("click", () => {
+    stopPlay();
+    setStep(0);
+    setStatus(status, "Reset to phase 1.", "ok");
+  });
+  btnPause.addEventListener("click", () => {
+    stopPlay();
+    setStatus(status, "Paused.", "ok");
+  });
+  btnPlay.addEventListener("click", () => {
+    togglePlayPause();
+  });
+
+  window.addEventListener("keydown", (event) => {
+    const target = event.target;
+    if (
+      target instanceof HTMLElement &&
+      (target.closest("input, textarea, select, [contenteditable='true']") ||
+        target.isContentEditable)
+    ) {
+      return;
+    }
+    if (event.metaKey || event.ctrlKey || event.altKey) {
+      return;
+    }
+
+    const key = event.key;
+    if (key === " " || key === "Spacebar") {
+      event.preventDefault();
+      togglePlayPause();
+      return;
+    }
+    if (key === "ArrowRight") {
+      event.preventDefault();
+      if (!trace || stepIndex >= steps.length - 1) {
+        return;
+      }
+      stopPlay();
+      setStep(stepIndex + 1);
+      return;
+    }
+    if (key === "ArrowLeft") {
+      event.preventDefault();
+      if (!trace || stepIndex <= 0) {
+        return;
+      }
+      stopPlay();
+      setStep(stepIndex - 1);
+      return;
+    }
+    if (key === "n" || key === "N") {
+      event.preventDefault();
+      if (!trace || steps[stepIndex].phase >= PHASE_COUNT) {
+        return;
+      }
+      jumpPhase(1);
+      return;
+    }
+    if (key === "p" || key === "P") {
+      event.preventDefault();
+      if (!trace || steps[stepIndex].phase <= 1) {
+        return;
+      }
+      jumpPhase(-1);
+    }
+  });
+
+  paintIdle();
+  setStatus(status, "Ready — enter a message and press Sign.", "ok");
+  await doSign();
+}
+
+main();

@@ -190,6 +190,58 @@ export function makeStatelessWotsAddress({
 }
 
 /**
+ * FORS PRF address: type SL_FORS_PRF, word1=keypair, word3=forest-wide leaf index.
+ */
+export function makeForsPrfAddress({
+  layer = 0,
+  treeAddress = 0,
+  keypairIndex = 0,
+  nodeIndex = 0,
+} = {}) {
+  return new Address()
+    .setLayer(layer)
+    .setTreeAddress(treeAddress)
+    .setType(ADRS_TYPES.SL_FORS_PRF)
+    .setKeypairIndex(keypairIndex)
+    .setHashIndex(nodeIndex);
+}
+
+/**
+ * FORS Merkle-tree hash address: type SL_FORS_TREE.
+ * word1=keypair, word2=tree_height, word3=forest-wide tree_index.
+ */
+export function makeForsTreeAddress({
+  layer = 0,
+  treeAddress = 0,
+  keypairIndex = 0,
+  treeHeight = 0,
+  treeIndex = 0,
+} = {}) {
+  return new Address()
+    .setLayer(layer)
+    .setTreeAddress(treeAddress)
+    .setType(ADRS_TYPES.SL_FORS_TREE)
+    .setKeypairIndex(keypairIndex)
+    .setChainIndex(treeHeight)
+    .setHashIndex(treeIndex);
+}
+
+/**
+ * FORS roots compression address: type SL_FORS_ROOTS, word1=keypair.
+ */
+export function makeForsRootsAddress({
+  layer = 0,
+  treeAddress = 0,
+  keypairIndex = 0,
+} = {}) {
+  return new Address()
+    .setLayer(layer)
+    .setTreeAddress(treeAddress)
+    .setType(ADRS_TYPES.SL_FORS_ROOTS)
+    .setKeypairIndex(keypairIndex);
+}
+
+/**
  * Build a blank stateful WOTS+C address with node location and chain set.
  */
 export function makeStatefulWotsAddress({

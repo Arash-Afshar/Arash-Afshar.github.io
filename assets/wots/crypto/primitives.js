@@ -74,6 +74,29 @@ export async function T_sf(pkSeed, adrsBytes, ml) {
 }
 
 /**
+ * T_k(pk_seed, ADRS, M_k) — compress FORS tree roots (k × 16 bytes).
+ * @param {Uint8Array} pkSeed
+ * @param {Uint8Array} adrsBytes
+ * @param {Uint8Array} mk
+ */
+export async function T_k(pkSeed, adrsBytes, mk) {
+  if (!(mk instanceof Uint8Array) || mk.length === 0 || mk.length % N !== 0) {
+    throw new Error("T_k message must be a positive multiple of 16 bytes");
+  }
+  return tweaked16(pkSeed, adrsBytes, mk);
+}
+
+/**
+ * H(pk_seed, ADRS, M_2) — Merkle parent of two 16-byte nodes (32-byte input).
+ */
+export async function H(pkSeed, adrsBytes, m2) {
+  if (!(m2 instanceof Uint8Array) || m2.length !== 2 * N) {
+    throw new Error("H message must be 32 bytes");
+  }
+  return tweaked16(pkSeed, adrsBytes, m2);
+}
+
+/**
  * H_grind(pk_seed, ADRS, digest, counter) — WOTS+C grinding map.
  * Input layout: pk_seed || zeros(48) || ADRS[:10] || digest || zeros(4) || counter_be16
  */
