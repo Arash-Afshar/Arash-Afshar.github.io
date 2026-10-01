@@ -1,6 +1,16 @@
 {
   "posts": [
     {
+      "slug": "wots-reuse",
+      "title": "Why WOTS is one-time",
+      "date": "2026-10-01T09:30:00-06:00",
+      "tags": ["post-quantum", "signatures", "interactive"],
+      "summary": "Sign two real messages with the same WOTS key and watch an observer forge others from the leaked chain nodes.",
+      "description": "Sign two real messages with the same WOTS key and watch how an observer forges others from the leaked chain nodes.",
+      "url": "/blog/wots-reuse/",
+      "contentPath": "/content/posts/wots-reuse.md"
+    },
+    {
       "slug": "wots",
       "title": "WOTS hash chains",
       "date": "2026-09-30T10:00:00-06:00",

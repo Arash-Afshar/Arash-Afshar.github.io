@@ -1,0 +1,93 @@
+/* WOTS key-reuse demo — stacked signature grids */
+
+.wots-reuse-demo .lede {
+  margin: 0 0 1rem;
+}
+
+.wots-reuse-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin: 0.85rem 0 0.5rem;
+}
+
+.wots-reuse-msg {
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--wots-border);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.wots-reuse-msg-label {
+  display: block;
+  color: var(--wots-muted);
+  font-size: 0.7rem;
+  margin-bottom: 0.25rem;
+}
+
+.wots-reuse-msg strong {
+  color: var(--wots-warm);
+  font-size: 0.88rem;
+}
+
+.wots-reuse-msg code {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.68rem;
+  color: var(--wots-accent);
+  overflow-wrap: anywhere;
+}
+
+.wots-reuse-panel h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  color: var(--wots-warm);
+}
+
+.wots-reuse-panel .wots-note {
+  margin: 0 0 0.75rem;
+}
+
+.wots-reuse-panel .wots-overview-legend {
+  display: none;
+}
+
+.wots-reuse-panel--legend .wots-overview-legend {
+  display: flex;
+}
+
+.wots-reuse-forge-list {
+  list-style: none;
+  margin: 0 0 0.85rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.wots-reuse-forge-list button {
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--wots-border);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--wots-text);
+  cursor: pointer;
+}
+
+.wots-reuse-forge-list button:hover {
+  border-color: var(--wots-accent);
+}
+
+.wots-reuse-forge-list button.is-active {
+  border-color: var(--wots-warm);
+  color: var(--wots-warm);
+  background: rgba(201, 165, 84, 0.1);
+}
+
+@media (max-width: 720px) {
+  .wots-reuse-pair {
+    grid-template-columns: 1fr;
+  }
+}

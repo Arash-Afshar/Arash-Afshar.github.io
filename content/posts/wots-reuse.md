@@ -1,0 +1,9 @@
+WOTS is a **one-time** signing scheme: each signature reveals some information about the secret signing key. After signing two different messages under the same key, an observer can use what was revealed to forge signatures on *other* messages.
+
+See [how WOTS works](/blog/wots/) for an interactive and step-by-step way of signing with WOTS and its "chains". Every signature publishes one hash node per chain; from that node upward to the public tip, anyone can recompute the rest with the public hash function. Those publicly reachable values are exactly what a forger needs.
+
+**Why a single signature is still fine?** Raising a message digit means revealing a *lower* node on that chain (hashing farther from the secret). An attacker who tries to forge a different message by hashing upward only increases digits. Since the checksum is defined as \(480 - \Sigma(\text{message digits})\), increasing any message digit *forces* the checksum digits down. To produce a valid signature for those smaller checksum digits, the attacker would need nodes *below* what the honest signature revealed on the checksum chains — and the hash function does not go backward. So one signature does not let you freely invent a new digit vector.
+
+**Why two signatures break that?** With two different messages you see two heights on each chain and keep the **lower** of the two. On every chain, the band from that leaked node up to the public tip is now public computation (teal in the demo below). Any new message whose digits — checksum included — all sit inside those bands is forgeable: the observer hashes upward from each leak to the required height and obtains a verifying signature, with no secret key.
+
+The demo uses the same keypair as the previous post. Grids 1–2 are the two honest signatures; grid 3 shows the leaked nodes and the public-upward bands; grid 4 lists ordinary-looking messages that clear those bands — click one to place the forged signature inside the teal region.

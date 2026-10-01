@@ -68,6 +68,8 @@ function buildShellHtml() {
         <span><i class="wots-swatch wots-swatch--public"></i> public (pk tip)</span>
         <span><i class="wots-swatch wots-swatch--secret"></i> secret / computed</span>
         <span><i class="wots-swatch wots-swatch--sig"></i> signature node</span>
+        <span><i class="wots-swatch wots-swatch--leak"></i> leaked node</span>
+        <span><i class="wots-swatch wots-swatch--public-zone"></i> public hash upward</span>
         <span><i class="wots-swatch wots-swatch--active"></i> current step</span>
         <span>top labels = unique chain secrets (short hex)</span>
       </div>
@@ -148,22 +150,36 @@ function updateOverview(shell, opts) {
       const isComputed = computedThrough >= 0 && pos <= computedThrough;
       const isSecretComputed = isComputed && pos < chain.targetIndex;
       const isSigVisible = revealedSig && isSigPos;
+      const publicFrom =
+        typeof st?.publicFrom === "number" ? st.publicFrom : null;
+      const isPublicZone =
+        publicFrom !== null && pos >= publicFrom && pos <= CHAIN_LENGTH - 1;
+      const isLeak = publicFrom !== null && pos === publicFrom;
       const short = bytesToHex(chain.nodes[pos]).slice(0, 6);
 
       node.className = "wots-node";
       if (isEndpoint) {
         node.classList.add("is-public");
       }
+      if (isPublicZone) {
+        node.classList.add("is-public-zone");
+      }
+      if (isLeak) {
+        node.classList.add("is-leak");
+      }
       if (isTargetSelected && isSigPos) {
         node.classList.add("is-target");
       }
-      if (isComputed && pos === 0) {
+      if (isComputed && pos === 0 && publicFrom === null) {
         node.classList.add("is-secret");
       }
-      if (isSecretComputed || (isComputed && pos === 0)) {
+      if (
+        publicFrom === null &&
+        (isSecretComputed || (isComputed && pos === 0))
+      ) {
         node.classList.add("is-computed-secret");
       }
-      if (isSigVisible || (collected && isSigPos)) {
+      if (isSigVisible || (collected && isSigPos && publicFrom === null)) {
         node.classList.add("is-sig");
       }
       if (isFocus) {
@@ -174,7 +190,13 @@ function updateOverview(shell, opts) {
       tag.textContent = "";
 
       let title = `chain ${chainIndex}, position ${pos}`;
-      if (isEndpoint) {
+      if (isLeak) {
+        title += ` — leaked node ${short} (observer knows this)`;
+      } else if (isPublicZone && isEndpoint) {
+        title += ` — public pk ${short} (reachable by hashing upward)`;
+      } else if (isPublicZone) {
+        title += ` — publicly computable by hashing from the leak ${short}`;
+      } else if (isEndpoint) {
         title += ` — public pk ${short}`;
       } else if (isSigVisible) {
         title += ` — signature ${short}`;
@@ -182,6 +204,8 @@ function updateOverview(shell, opts) {
         title += ` — secret ${short} (not published)`;
       } else if (isComputed) {
         title += ` — computed ${short} (not published)`;
+      } else {
+        title += " — unknown to observer";
       }
       node.title = title;
     });

@@ -182,6 +182,22 @@
   box-shadow: 0 0 0 1px rgba(120, 130, 75, 0.55);
 }
 
+.wots-swatch--public-zone {
+  border-color: #6a9a9a;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(106, 154, 154, 0.45),
+    rgba(106, 154, 154, 0.45) 2px,
+    transparent 2px,
+    transparent 4px
+  );
+}
+
+.wots-swatch--leak {
+  border-color: var(--wots-warm);
+  background: var(--wots-warm);
+}
+
 .wots-overview-scroll {
   overflow-x: hidden;
   overflow-y: hidden;
@@ -359,6 +375,39 @@
 }
 
 .wots-node.is-sig {
+  border-color: var(--wots-warm);
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(201, 165, 84, 0.85),
+    rgba(201, 165, 84, 0.85) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+.wots-node.is-public-zone {
+  border-color: #6a9a9a;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(106, 154, 154, 0.38),
+    rgba(106, 154, 154, 0.38) 2px,
+    rgba(106, 154, 154, 0.12) 2px,
+    rgba(106, 154, 154, 0.12) 4px
+  );
+}
+
+.wots-node.is-leak {
+  border-color: var(--wots-warm);
+  background: rgba(201, 165, 84, 0.9);
+  box-shadow: 0 0 0 1px rgba(201, 165, 84, 0.45);
+}
+
+.wots-node.is-public-zone.is-public {
+  border-color: var(--wots-ok);
+  background: rgba(95, 135, 95, 0.4);
+}
+
+.wots-node.is-public-zone.is-sig {
   border-color: var(--wots-warm);
   background: repeating-linear-gradient(
     -45deg,
