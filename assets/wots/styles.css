@@ -9,8 +9,8 @@
   --wots-accent: var(--accent, #78824b);
   --wots-warm: var(--warm, #c9a554);
   --wots-code: var(--code-bg, #191919);
-  --wots-ok: #5f875f;
-  --wots-err: #bb7744;
+  --wots-ok: var(--accent-2, #5f875f);
+  --wots-err: var(--orange, #bb7744);
   --wots-node: 12px;
   --wots-gap: 4px;
   font-family: var(--font-body, "JetBrainsMono Nerd Font", ui-monospace, monospace);
@@ -103,7 +103,7 @@
   padding: 0.05rem 0.35rem;
   border: 1px solid var(--wots-border);
   border-radius: 4px;
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--inset);
   color: var(--wots-warm);
   font: inherit;
   font-size: 0.72rem;
@@ -673,7 +673,7 @@
   padding: 0.45rem 0.5rem;
   border: 1px solid var(--wots-border);
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.15);
+  background: var(--inset);
   min-height: 3.2rem;
   text-align: left;
   font: inherit;
@@ -793,7 +793,7 @@
   height: 1.25rem;
   border: 1px solid var(--wots-border);
   border-radius: 4px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--inset);
   color: var(--wots-faint);
   font-size: 0.65rem;
   box-sizing: border-box;
@@ -972,7 +972,7 @@
   padding: 0.28rem 0.32rem;
   border: 1px solid var(--wots-border);
   border-radius: 7px;
-  background: rgba(0, 0, 0, 0.18);
+  background: var(--inset);
 }
 
 .wots-rail-step.is-ghost {
@@ -1099,7 +1099,7 @@
   padding: 0.55rem 0.65rem;
   border: 1px solid var(--wots-border);
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.22);
+  background: var(--inset);
   color: var(--wots-accent);
   font-size: 0.68rem;
   line-height: 1.45;

@@ -45,6 +45,62 @@ function formatDate(dateString) {
   }).format(date);
 }
 
+function themeToggleLabel(resolved) {
+  return resolved === "dark" ? "Switch to light theme" : "Switch to dark theme";
+}
+
+function syncThemeToggle(button) {
+  if (!button || !window.__siteTheme) {
+    return;
+  }
+  const preference = window.__siteTheme.getPreference();
+  const resolved = window.__siteTheme.resolveTheme(preference);
+  button.dataset.theme = resolved;
+  button.setAttribute("aria-label", themeToggleLabel(resolved));
+  button.title =
+    preference === "system"
+      ? `Theme: system (${resolved}). Click to set ${resolved === "dark" ? "light" : "dark"}.`
+      : `Theme: ${resolved}. Click to switch. Double-click for system.`;
+}
+
+function installThemeToggle(button) {
+  if (!button || !window.__siteTheme) {
+    return;
+  }
+
+  syncThemeToggle(button);
+
+  button.addEventListener("click", () => {
+    const preference = window.__siteTheme.getPreference();
+    const resolved = window.__siteTheme.resolveTheme(preference);
+    window.__siteTheme.setPreference(resolved === "dark" ? "light" : "dark");
+    syncThemeToggle(button);
+  });
+
+  button.addEventListener("dblclick", (event) => {
+    event.preventDefault();
+    window.__siteTheme.setPreference("system");
+    syncThemeToggle(button);
+  });
+
+  if (window.matchMedia) {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => {
+      if (window.__siteTheme.getPreference() === "system") {
+        window.__siteTheme.applyTheme("system");
+        syncThemeToggle(button);
+      }
+    };
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", onChange);
+    } else if (typeof media.addListener === "function") {
+      media.addListener(onChange);
+    }
+  }
+
+  window.addEventListener("site-theme-change", () => syncThemeToggle(button));
+}
+
 function buildHeader() {
   const header = byId("site-header");
   if (!header) {
@@ -69,10 +125,24 @@ function buildHeader() {
         <span class="brand-subtitle">${SITE_CONFIG.shortTitle}</span>
       </span>
     </a>
-    <nav class="site-nav" aria-label="Primary">
-      ${navLinks}
-    </nav>
+    <div class="header-controls">
+      <nav class="site-nav" aria-label="Primary">
+        ${navLinks}
+      </nav>
+      <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch theme">
+        <span class="theme-toggle-track" aria-hidden="true"></span>
+        <span class="theme-toggle-icon theme-toggle-icon--sun" aria-hidden="true">
+          <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.4"/><path d="M8 1.6v1.5M8 12.9v1.5M1.6 8h1.5M12.9 8h1.5M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1"/></svg>
+        </span>
+        <span class="theme-toggle-icon theme-toggle-icon--moon" aria-hidden="true">
+          <svg viewBox="0 0 16 16"><path fill="currentColor" stroke="none" d="M10.2 2.2a5.5 5.5 0 1 0 3.6 9.4A4.4 4.4 0 1 1 10.2 2.2z"/></svg>
+        </span>
+        <span class="theme-toggle-thumb" aria-hidden="true"></span>
+      </button>
+    </div>
   `;
+
+  installThemeToggle(byId("theme-toggle"));
 }
 
 function buildFooter() {
