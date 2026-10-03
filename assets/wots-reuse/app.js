@@ -44,6 +44,10 @@ async function messageTo16(text) {
 
 function ensureShell(root) {
   root.classList.add("wots-demo", "wots-reuse-demo");
+  if (byId("grid1") && byId("grid2") && byId("grid-zone") && byId("grid-forge")) {
+    return;
+  }
+
   root.innerHTML = `
     <div class="wots-panel">
       <div class="wots-reuse-pair">
@@ -62,41 +66,41 @@ function ensureShell(root) {
     </div>
 
     <div class="wots-panel wots-reuse-panel wots-reuse-panel--legend">
-      <h3>1 · Signature for message 1</h3>
+      <h2 class="demo-panel-title">1 · Signature for message 1</h2>
       <p class="wots-note">Amber = revealed signature node on each chain. Green tip = public key.</p>
-      <div id="grid1"></div>
+      <div id="grid1" class="demo-overview-slot"></div>
     </div>
 
     <div class="wots-panel wots-reuse-panel">
-      <h3>2 · Signature for message 2</h3>
+      <h2 class="demo-panel-title">2 · Signature for message 2</h2>
       <p class="wots-note">Same key, different digits. Wherever this amber cell sits <em>below</em> signature 1, the observer learns a lower node.</p>
-      <div id="grid2"></div>
+      <div id="grid2" class="demo-overview-slot"></div>
     </div>
 
     <div class="wots-panel wots-reuse-panel">
-      <h3>3 · What hashing can reach (public upward)</h3>
+      <h2 class="demo-panel-title">3 · What hashing can reach (public upward)</h2>
       <p class="wots-note">
         Solid amber = the <strong>leaked</strong> node (min of the two signature heights).
         Teal band = every node from that leak up to the public tip — the observer can
         recompute these with the public hash function alone. Empty cells below the leak stay secret (you cannot hash backward).
       </p>
-      <div id="grid-zone"></div>
+      <div id="grid-zone" class="demo-overview-slot"></div>
     </div>
 
     <div class="wots-panel wots-reuse-panel">
-      <h3>4 · Messages an observer can forge</h3>
+      <h2 class="demo-panel-title">4 · Messages an observer can forge</h2>
       <p class="wots-note" id="forge-explainer">
         Any message whose Winternitz digits (including checksum) all sit inside the teal band is forgeable.
         Click one to place a forged signature node on each chain — built only by hashing upward from the leaks.
       </p>
       <ul class="wots-reuse-forge-list" id="forge-list"></ul>
-      <div id="grid-forge"></div>
+      <div id="grid-forge" class="demo-overview-slot"></div>
     </div>
 
     <div class="wots-panel">
-      <h2 class="section-title" style="font-size:1.2rem;margin:0 0 0.7rem">Key material</h2>
+      <h2 class="section-title demo-key-title">Key material</h2>
       <p class="wots-note">Identical demo seeds as the <a href="/blog/wots/">WOTS hash chains</a> post — so these signatures are on the same keypair.</p>
-      <dl id="seed-info" style="margin-top:0.8rem"></dl>
+      <dl id="seed-info"></dl>
     </div>
   `;
 }

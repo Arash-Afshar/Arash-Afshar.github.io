@@ -250,15 +250,172 @@ function injectChrome(html) {
   return html;
 }
 
-function demoPlaceholder(label) {
+function demoNoscript(label) {
   return `
     <noscript>
       <p class="wots-note">This page includes an interactive ${escapeHtml(label)} that needs JavaScript. The article prose below is complete without it.</p>
-    </noscript>
-    <div class="wots-panel demo-placeholder" data-demo-placeholder>
-      <p class="wots-note">Loading interactive ${escapeHtml(label)}…</p>
+    </noscript>`;
+}
+
+/** Static shell matching the JS apps so hydration does not expand a tiny placeholder (CLS). */
+function demoShell(slug) {
+  if (slug === "wots") {
+    return `${demoNoscript("WOTS hash-chain demo")}
+    <div class="wots-panel">
+      <div id="wots-message-anchor" class="wots-message-anchor">
+        <div class="wots-message-form">
+          <label class="wots-field">
+            <span>Message</span>
+            <input id="msg-input" type="text" spellcheck="false"
+              placeholder="Any text (hashed to 16 bytes), or 32 hex chars"
+              value="A Sample Message to Sign">
+          </label>
+          <button type="button" id="btn-sign">Sign</button>
+          <button type="button" id="btn-example">Example</button>
+        </div>
+        <p class="wots-note" id="msg-hint">Enter 32 hex chars, or text — text is SHA-256 truncated to 16 bytes.</p>
+      </div>
+      <div class="wots-controls">
+        <button type="button" id="btn-prev-phase" disabled>⟵ Phase</button>
+        <button type="button" id="btn-prev" disabled>Prev</button>
+        <button type="button" id="btn-next" disabled>Next</button>
+        <button type="button" id="btn-next-phase" disabled>Phase ⟶</button>
+        <button type="button" id="btn-play" disabled>Play</button>
+        <button type="button" id="btn-pause" disabled>Pause</button>
+        <button type="button" id="btn-reset" disabled>Reset</button>
+        <label>
+          Step ms
+          <input id="speed" type="number" min="40" max="2000" step="20" value="160">
+        </label>
+      </div>
+      <p id="status" data-demo-placeholder>Loading interactive WOTS hash-chain demo…</p>
+      <p class="wots-note wots-shortcuts">Keys: <kbd>Space</kbd> play/pause · <kbd>←</kbd>/<kbd>→</kbd> step · <kbd>P</kbd>/<kbd>N</kbd> phase</p>
+      <div id="narration-root" class="demo-narration-slot"></div>
+      <div id="overview-root" class="demo-overview-slot" aria-busy="true"></div>
     </div>
-  `;
+    <div class="wots-panel">
+      <h2 class="section-title demo-key-title">Key material</h2>
+      <p class="wots-note">Fixed demo seeds. Each chain has its own PRF-derived secret (shown as a short prefix in the grid). Intermediates stay secret except as the animation reveals them; public tips are the green endpoints.</p>
+      <dl id="seed-info"></dl>
+    </div>`;
+  }
+
+  if (slug === "fors") {
+    return `${demoNoscript("FORS forest demo")}
+    <div class="wots-panel">
+      <div id="fors-message-anchor" class="wots-message-anchor">
+        <div class="wots-message-form">
+          <label class="wots-field">
+            <span>Message</span>
+            <input id="msg-input" type="text" spellcheck="false"
+              placeholder="Any text, or 4 hex chars for the digest"
+              value="A Sample Message to Sign">
+          </label>
+          <button type="button" id="btn-sign">Sign</button>
+          <button type="button" id="btn-example">Example</button>
+        </div>
+        <p class="wots-note" id="msg-hint">
+          Text is hashed with SHA-256 and truncated to 2 bytes
+          (enough bits for k·a indexes). Or paste 4 hex chars.
+        </p>
+      </div>
+      <div class="wots-controls">
+        <button type="button" id="btn-prev-phase" disabled>⟵ Phase</button>
+        <button type="button" id="btn-prev" disabled>Prev</button>
+        <button type="button" id="btn-next" disabled>Next</button>
+        <button type="button" id="btn-next-phase" disabled>Phase ⟶</button>
+        <button type="button" id="btn-play" disabled>Play</button>
+        <button type="button" id="btn-pause" disabled>Pause</button>
+        <button type="button" id="btn-reset" disabled>Reset</button>
+        <label>
+          Step ms
+          <input id="speed" type="number" min="40" max="2000" step="20" value="160">
+        </label>
+      </div>
+      <p id="status" data-demo-placeholder>Loading interactive FORS forest demo…</p>
+      <p class="wots-note wots-shortcuts">Keys: <kbd>Space</kbd> play/pause · <kbd>←</kbd>/<kbd>→</kbd> step · <kbd>P</kbd>/<kbd>N</kbd> phase</p>
+      <div id="narration-root" class="demo-narration-slot"></div>
+      <div id="overview-root" class="demo-overview-slot demo-overview-slot--fors" aria-busy="true"></div>
+    </div>
+    <div class="wots-panel">
+      <h2 class="section-title demo-key-title">Key material</h2>
+      <p class="wots-note">
+        Fixed demo seeds (same as the WOTS posts). This page runs real SHRINCS FORS primitives
+        (<code>PRF</code>, <code>F</code>, <code>H</code>, <code>T_k</code>) on a small forest so every node is visible.
+      </p>
+      <dl id="seed-info"></dl>
+    </div>`;
+  }
+
+  if (slug === "wots-reuse") {
+    return `${demoNoscript("WOTS key-reuse demo")}
+    <div class="wots-panel">
+      <div class="wots-reuse-pair">
+        <div class="wots-reuse-msg">
+          <span class="wots-reuse-msg-label">Message 1 (same key as the previous post)</span>
+          <strong>A Sample Message to Sign</strong>
+          <code data-hex1></code>
+        </div>
+        <div class="wots-reuse-msg">
+          <span class="wots-reuse-msg-label">Message 2</span>
+          <strong>An observer can forge after this signature</strong>
+          <code data-hex2></code>
+        </div>
+      </div>
+      <p id="status" data-kind="busy" data-demo-placeholder>Signing both messages with real WOTS-TW…</p>
+    </div>
+    <div class="wots-panel wots-reuse-panel wots-reuse-panel--legend">
+      <h2 class="demo-panel-title">1 · Signature for message 1</h2>
+      <p class="wots-note">Amber = revealed signature node on each chain. Green tip = public key.</p>
+      <div id="grid1" class="demo-overview-slot" aria-busy="true"></div>
+    </div>
+    <div class="wots-panel wots-reuse-panel">
+      <h2 class="demo-panel-title">2 · Signature for message 2</h2>
+      <p class="wots-note">Same key, different digits. Wherever this amber cell sits <em>below</em> signature 1, the observer learns a lower node.</p>
+      <div id="grid2" class="demo-overview-slot" aria-busy="true"></div>
+    </div>
+    <div class="wots-panel wots-reuse-panel">
+      <h2 class="demo-panel-title">3 · What hashing can reach (public upward)</h2>
+      <p class="wots-note">
+        Solid amber = the <strong>leaked</strong> node (min of the two signature heights).
+        Teal band = every node from that leak up to the public tip — the observer can
+        recompute these with the public hash function alone. Empty cells below the leak stay secret (you cannot hash backward).
+      </p>
+      <div id="grid-zone" class="demo-overview-slot" aria-busy="true"></div>
+    </div>
+    <div class="wots-panel wots-reuse-panel">
+      <h2 class="demo-panel-title">4 · Messages an observer can forge</h2>
+      <p class="wots-note" id="forge-explainer">
+        Any message whose Winternitz digits (including checksum) all sit inside the teal band is forgeable.
+        Click one to place a forged signature node on each chain — built only by hashing upward from the leaks.
+      </p>
+      <ul class="wots-reuse-forge-list" id="forge-list"></ul>
+      <div id="grid-forge" class="demo-overview-slot" aria-busy="true"></div>
+    </div>
+    <div class="wots-panel">
+      <h2 class="section-title demo-key-title">Key material</h2>
+      <p class="wots-note">Identical demo seeds as the <a href="/blog/wots/">WOTS hash chains</a> post — so these signatures are on the same keypair.</p>
+      <dl id="seed-info"></dl>
+    </div>`;
+  }
+
+  return `${demoNoscript("demo")}
+    <div class="wots-panel demo-placeholder" data-demo-placeholder>
+      <p class="wots-note">Loading interactive demo…</p>
+    </div>`;
+}
+
+function ensureStylesheetLinks(html, hrefs) {
+  for (const href of hrefs) {
+    if (html.includes(`href="${href}"`)) {
+      continue;
+    }
+    html = html.replace(
+      /<link rel="stylesheet" href="\/assets\/styles\.css">/i,
+      (match) => `${match}\n    <link rel="stylesheet" href="${href}">`
+    );
+  }
+  return html;
 }
 
 function ensureDemoMount(html, slug) {
@@ -268,33 +425,21 @@ function ensureDemoMount(html, slug) {
   }
 
   const mountId = loader.mount.slice(1);
-  const labels = {
-    wots: "WOTS hash-chain demo",
-    fors: "FORS forest demo",
-    "wots-reuse": "WOTS key-reuse demo",
-  };
-  const label = labels[slug] || "demo";
 
   try {
-    html = replaceById(html, mountId, demoPlaceholder(label));
+    html = replaceById(html, mountId, demoShell(slug));
   } catch {
     // Mount may already have been customized; leave as-is.
   }
 
-  const sheets = JSON.stringify(loader.stylesheets || []);
+  // Demo CSS stays in <head>: late-injected stylesheet was a CLS source, and
+  // FCP/LCP are already fast enough that this tradeoff is worth it.
+  html = ensureStylesheetLinks(html, loader.stylesheets || []);
+
   const lazyBlock = `    <script type="module">
       import { loadDemo } from "/assets/lazy-demo.js";
-      loadDemo("${loader.module}", "${loader.mount}", ${sheets});
+      loadDemo("${loader.module}", "${loader.mount}");
     </script>\n`;
-
-  // Keep demo CSS off the critical path; lazy-demo injects it when the demo boots.
-  for (const href of loader.stylesheets || []) {
-    const escaped = href.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    html = html.replace(
-      new RegExp(`\\s*<link rel="stylesheet" href="${escaped}">\\n?`, "gi"),
-      "\n"
-    );
-  }
 
   html = html.replace(
     /<script type="module"[^>]*src="\/assets\/(?:wots|fors|wots-reuse)\/app\.js"[^>]*><\/script>\n?/gi,

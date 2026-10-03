@@ -12,6 +12,7 @@
     <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
     <script src="/assets/theme-init.js"></script>
     <link rel="stylesheet" href="/assets/styles.css">
+    <link rel="stylesheet" href="/assets/wots/styles.css">
     <script defer src="/assets/site.js"></script>
 <!-- prerender:social -->
     <meta property="og:site_name" content="Technology and Security">
@@ -92,10 +93,43 @@
     <noscript>
       <p class="wots-note">This page includes an interactive WOTS hash-chain demo that needs JavaScript. The article prose below is complete without it.</p>
     </noscript>
-    <div class="wots-panel demo-placeholder" data-demo-placeholder>
-      <p class="wots-note">Loading interactive WOTS hash-chain demo…</p>
+    <div class="wots-panel">
+      <div id="wots-message-anchor" class="wots-message-anchor">
+        <div class="wots-message-form">
+          <label class="wots-field">
+            <span>Message</span>
+            <input id="msg-input" type="text" spellcheck="false"
+              placeholder="Any text (hashed to 16 bytes), or 32 hex chars"
+              value="A Sample Message to Sign">
+          </label>
+          <button type="button" id="btn-sign">Sign</button>
+          <button type="button" id="btn-example">Example</button>
+        </div>
+        <p class="wots-note" id="msg-hint">Enter 32 hex chars, or text — text is SHA-256 truncated to 16 bytes.</p>
+      </div>
+      <div class="wots-controls">
+        <button type="button" id="btn-prev-phase" disabled>⟵ Phase</button>
+        <button type="button" id="btn-prev" disabled>Prev</button>
+        <button type="button" id="btn-next" disabled>Next</button>
+        <button type="button" id="btn-next-phase" disabled>Phase ⟶</button>
+        <button type="button" id="btn-play" disabled>Play</button>
+        <button type="button" id="btn-pause" disabled>Pause</button>
+        <button type="button" id="btn-reset" disabled>Reset</button>
+        <label>
+          Step ms
+          <input id="speed" type="number" min="40" max="2000" step="20" value="160">
+        </label>
+      </div>
+      <p id="status" data-demo-placeholder>Loading interactive WOTS hash-chain demo…</p>
+      <p class="wots-note wots-shortcuts">Keys: <kbd>Space</kbd> play/pause · <kbd>←</kbd>/<kbd>→</kbd> step · <kbd>P</kbd>/<kbd>N</kbd> phase</p>
+      <div id="narration-root" class="demo-narration-slot"></div>
+      <div id="overview-root" class="demo-overview-slot" aria-busy="true"></div>
     </div>
-  </section>
+    <div class="wots-panel">
+      <h2 class="section-title demo-key-title">Key material</h2>
+      <p class="wots-note">Fixed demo seeds. Each chain has its own PRF-derived secret (shown as a short prefix in the grid). Intermediates stay secret except as the animation reveals them; public tips are the green endpoints.</p>
+      <dl id="seed-info"></dl>
+    </div></section>
         <article class="markdown-body" id="article-body" data-prerendered="true">
 <p>If you have been reading about post-quantum cryptography, you have probably come across <strong>one-time signatures</strong>. WOTS, the Winternitz One-Time Signature scheme, builds a signature from many one-way hash chains. A message decides how far along each chain the signer reveals a value; the verifier hashes forward from there to the public endpoint. The interactive demo above signs a real 16-byte message with <strong>WOTS-TW</strong>: it splits the message into 4-bit digits, derives a checksum, walks each of the 35 hash chains with the SHRINCS <code>PRF</code> / <code>F</code> primitives, and assembles the signature from the revealed nodes. Use <strong>Next</strong> / <strong>Prev</strong> (or <strong>Play</strong>) to step through that process — every displayed value comes from an in-browser execution trace, not a toy diagram. Later posts in this series will add other parts of SPHINCS and SHRINCS protocols. Next: <a href="/blog/wots-reuse/">why signing twice with the same WOTS key is fatal</a>, then <a href="/blog/fors/">FORS hash forests</a>.</p>
 </article>
@@ -107,7 +141,7 @@
       <!-- prerender:demo-loader -->
     <script type="module">
       import { loadDemo } from "/assets/lazy-demo.js";
-      loadDemo("/assets/wots/app.js", "#wots-demo", ["/assets/wots/styles.css"]);
+      loadDemo("/assets/wots/app.js", "#wots-demo");
     </script>
 <!-- /prerender:demo-loader -->
 </body>

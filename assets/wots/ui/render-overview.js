@@ -44,6 +44,7 @@ export function renderOverview(root, opts) {
     });
   }
 
+  root.removeAttribute("aria-busy");
   shell._onSelect = opts.onSelect;
   updateOverview(shell, opts);
 }

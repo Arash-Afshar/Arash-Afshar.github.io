@@ -15,6 +15,7 @@ export function renderForest(root, opts) {
   const { trace, view } = opts;
   const { a } = trace.params;
 
+  root.removeAttribute("aria-busy");
   root.innerHTML = `
     <div class="fors-forest">
       <div class="fors-legend">

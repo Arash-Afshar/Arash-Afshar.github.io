@@ -101,9 +101,30 @@ function installThemeToggle(button) {
   window.addEventListener("site-theme-change", () => syncThemeToggle(button));
 }
 
+function syncNavCurrent(header) {
+  const currentPath = window.location.pathname;
+  header.querySelectorAll(".site-nav a").forEach((link) => {
+    const href = link.getAttribute("href") || "";
+    const isCurrent =
+      currentPath === href || (href !== "/" && currentPath.startsWith(href));
+    if (isCurrent) {
+      link.setAttribute("aria-current", "page");
+    } else {
+      link.removeAttribute("aria-current");
+    }
+  });
+}
+
 function buildHeader() {
   const header = byId("site-header");
   if (!header) {
+    return;
+  }
+
+  // Keep prerendered chrome to avoid header swap CLS; just wire behavior.
+  if (header.dataset.prerendered === "true" && byId("theme-toggle")) {
+    syncNavCurrent(header);
+    installThemeToggle(byId("theme-toggle"));
     return;
   }
 
@@ -148,6 +169,10 @@ function buildHeader() {
 function buildFooter() {
   const footer = byId("site-footer");
   if (!footer) {
+    return;
+  }
+
+  if (footer.dataset.prerendered === "true" && footer.childNodes.length) {
     return;
   }
 

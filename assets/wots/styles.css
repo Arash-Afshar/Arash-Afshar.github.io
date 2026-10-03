@@ -15,13 +15,6 @@
   --wots-gap: 4px;
   font-family: var(--font-body, "JetBrainsMono Nerd Font", ui-monospace, monospace);
   color: var(--wots-text);
-  min-height: 12rem;
-}
-
-.wots-demo .demo-placeholder {
-  min-height: 10rem;
-  display: grid;
-  align-content: center;
 }
 
 .wots-demo h1 {
@@ -73,7 +66,9 @@
 
 .wots-controls button,
 .wots-message-form > button {
-  padding: 0.45rem 0.75rem;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.55rem 0.85rem;
   border: 1px solid var(--wots-border);
   border-radius: 8px;
   background: rgba(120, 130, 75, 0.18);

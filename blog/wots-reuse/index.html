@@ -12,6 +12,8 @@
     <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
     <script src="/assets/theme-init.js"></script>
     <link rel="stylesheet" href="/assets/styles.css">
+    <link rel="stylesheet" href="/assets/wots-reuse/styles.css">
+    <link rel="stylesheet" href="/assets/wots/styles.css">
     <script defer src="/assets/site.js"></script>
 <!-- prerender:social -->
     <meta property="og:site_name" content="Technology and Security">
@@ -95,10 +97,54 @@
     <noscript>
       <p class="wots-note">This page includes an interactive WOTS key-reuse demo that needs JavaScript. The article prose below is complete without it.</p>
     </noscript>
-    <div class="wots-panel demo-placeholder" data-demo-placeholder>
-      <p class="wots-note">Loading interactive WOTS key-reuse demo…</p>
+    <div class="wots-panel">
+      <div class="wots-reuse-pair">
+        <div class="wots-reuse-msg">
+          <span class="wots-reuse-msg-label">Message 1 (same key as the previous post)</span>
+          <strong>A Sample Message to Sign</strong>
+          <code data-hex1></code>
+        </div>
+        <div class="wots-reuse-msg">
+          <span class="wots-reuse-msg-label">Message 2</span>
+          <strong>An observer can forge after this signature</strong>
+          <code data-hex2></code>
+        </div>
+      </div>
+      <p id="status" data-kind="busy" data-demo-placeholder>Signing both messages with real WOTS-TW…</p>
     </div>
-  </section>
+    <div class="wots-panel wots-reuse-panel wots-reuse-panel--legend">
+      <h2 class="demo-panel-title">1 · Signature for message 1</h2>
+      <p class="wots-note">Amber = revealed signature node on each chain. Green tip = public key.</p>
+      <div id="grid1" class="demo-overview-slot" aria-busy="true"></div>
+    </div>
+    <div class="wots-panel wots-reuse-panel">
+      <h2 class="demo-panel-title">2 · Signature for message 2</h2>
+      <p class="wots-note">Same key, different digits. Wherever this amber cell sits <em>below</em> signature 1, the observer learns a lower node.</p>
+      <div id="grid2" class="demo-overview-slot" aria-busy="true"></div>
+    </div>
+    <div class="wots-panel wots-reuse-panel">
+      <h2 class="demo-panel-title">3 · What hashing can reach (public upward)</h2>
+      <p class="wots-note">
+        Solid amber = the <strong>leaked</strong> node (min of the two signature heights).
+        Teal band = every node from that leak up to the public tip — the observer can
+        recompute these with the public hash function alone. Empty cells below the leak stay secret (you cannot hash backward).
+      </p>
+      <div id="grid-zone" class="demo-overview-slot" aria-busy="true"></div>
+    </div>
+    <div class="wots-panel wots-reuse-panel">
+      <h2 class="demo-panel-title">4 · Messages an observer can forge</h2>
+      <p class="wots-note" id="forge-explainer">
+        Any message whose Winternitz digits (including checksum) all sit inside the teal band is forgeable.
+        Click one to place a forged signature node on each chain — built only by hashing upward from the leaks.
+      </p>
+      <ul class="wots-reuse-forge-list" id="forge-list"></ul>
+      <div id="grid-forge" class="demo-overview-slot" aria-busy="true"></div>
+    </div>
+    <div class="wots-panel">
+      <h2 class="section-title demo-key-title">Key material</h2>
+      <p class="wots-note">Identical demo seeds as the <a href="/blog/wots/">WOTS hash chains</a> post — so these signatures are on the same keypair.</p>
+      <dl id="seed-info"></dl>
+    </div></section>
       </main>
       <footer class="site-footer" id="site-footer" data-prerendered="true">
     <p>&copy; 2026 Technology and Security. Hosted on GitHub Pages.</p>
@@ -107,7 +153,7 @@
       <!-- prerender:demo-loader -->
     <script type="module">
       import { loadDemo } from "/assets/lazy-demo.js";
-      loadDemo("/assets/wots-reuse/app.js", "#wots-reuse-demo", ["/assets/wots/styles.css","/assets/wots-reuse/styles.css"]);
+      loadDemo("/assets/wots-reuse/app.js", "#wots-reuse-demo");
     </script>
 <!-- /prerender:demo-loader -->
 </body>

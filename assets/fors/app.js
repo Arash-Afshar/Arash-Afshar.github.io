@@ -27,11 +27,11 @@ function setStatus(el, text, kind) {
 }
 
 function ensureDemoShell(root) {
-  if (byId("overview-root")) {
+  root.classList.add("wots-demo", "fors-demo");
+  if (byId("overview-root") && byId("msg-input") && byId("btn-sign")) {
     return;
   }
 
-  root.classList.add("wots-demo", "fors-demo");
   root.innerHTML = `
     <div class="wots-panel">
       <div id="fors-message-anchor" class="wots-message-anchor">
@@ -65,17 +65,17 @@ function ensureDemoShell(root) {
       </div>
       <p id="status"></p>
       <p class="wots-note wots-shortcuts">Keys: <kbd>Space</kbd> play/pause · <kbd>←</kbd>/<kbd>→</kbd> step · <kbd>P</kbd>/<kbd>N</kbd> phase</p>
-      <div id="narration-root"></div>
-      <div id="overview-root"></div>
+      <div id="narration-root" class="demo-narration-slot"></div>
+      <div id="overview-root" class="demo-overview-slot demo-overview-slot--fors"></div>
     </div>
 
     <div class="wots-panel">
-      <h2 class="section-title" style="font-size:1.2rem;margin:0 0 0.7rem">Key material</h2>
+      <h2 class="section-title demo-key-title">Key material</h2>
       <p class="wots-note">
         Fixed demo seeds (same as the WOTS posts). This page runs real SHRINCS FORS primitives
         (<code>PRF</code>, <code>F</code>, <code>H</code>, <code>T_k</code>) on a small forest so every node is visible.
       </p>
-      <dl id="seed-info" style="margin-top:0.8rem"></dl>
+      <dl id="seed-info"></dl>
     </div>
   `;
 }
