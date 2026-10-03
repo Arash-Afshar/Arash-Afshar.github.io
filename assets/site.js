@@ -27,6 +27,11 @@ function installCloudflareAnalytics() {
     return;
   }
 
+  const host = window.location.hostname;
+  if (host === "localhost" || host === "127.0.0.1") {
+    return;
+  }
+
   const beacon = document.createElement("script");
   beacon.type = "module";
   beacon.src = "https://static.cloudflareinsights.com/beacon.min.js";

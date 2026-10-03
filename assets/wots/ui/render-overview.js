@@ -103,7 +103,7 @@ function buildShellHtml() {
 
 function chainColumnHtml(chainIndex) {
   const nodes = Array.from({ length: CHAIN_LENGTH }, (_, pos) => {
-    return `<button type="button" class="wots-node" data-pos="${pos}" title="chain ${chainIndex}, position ${pos}" aria-label="chain ${chainIndex} position ${pos}"><span class="wots-node-tag"></span></button>`;
+    return `<span class="wots-node" data-pos="${pos}" title="chain ${chainIndex}, position ${pos}"><span class="wots-node-tag"></span></span>`;
   }).join("");
 
   return `

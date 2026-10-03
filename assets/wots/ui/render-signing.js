@@ -33,7 +33,7 @@ export function renderSignNarration(root, view, trace, handlers = {}) {
 
     <div class="wots-step-card">
       <div class="wots-step-meta">Phase ${phase} · step ${stepIndex + 1} / ${totalSteps}</div>
-      <h3 class="wots-step-label">${escapeHtml(step.label)}</h3>
+      <p class="wots-step-label">${escapeHtml(step.label)}</p>
       ${step.detail ? `<p class="wots-step-detail">${escapeHtml(step.detail)}</p>` : ""}
     </div>
 

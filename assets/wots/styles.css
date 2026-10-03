@@ -347,13 +347,13 @@
 }
 
 .wots-node {
+  display: block;
   width: min(100%, var(--wots-node));
   height: var(--wots-node);
   padding: 0;
   border: 1px solid var(--wots-border);
   border-radius: 2px;
   background: transparent;
-  cursor: pointer;
   box-sizing: border-box;
 }
 

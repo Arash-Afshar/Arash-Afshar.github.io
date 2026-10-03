@@ -32,7 +32,13 @@ function renderInline(markdown) {
   text = text.replace(/&lt;(\/?(?:sub|sup|br))&gt;/g, "<$1>");
 
   text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, src) => {
-    return `<img alt="${alt}" src="${src}" loading="lazy">`;
+    const known = {
+      "/assets/ot_requirements.png": [383, 283],
+      "/assets/simple_ot.png": [602, 497],
+    };
+    const size = known[src];
+    const dims = size ? ` width="${size[0]}" height="${size[1]}"` : "";
+    return `<img alt="${alt}" src="${src}" loading="lazy"${dims}>`;
   });
 
   text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {

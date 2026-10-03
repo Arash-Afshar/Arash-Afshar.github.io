@@ -189,6 +189,16 @@ function ensureSitemapLink(html) {
   );
 }
 
+function ensureFavicon(html) {
+  if (/rel="icon"/i.test(html)) {
+    return html;
+  }
+  return html.replace(
+    /<link rel="canonical"[^>]*>/i,
+    (match) => `${match}\n    <link rel="icon" href="/favicon.svg" type="image/svg+xml">`
+  );
+}
+
 function stripMarkdownScript(html) {
   return html.replace(
     /\s*<script[^>]*src="\/assets\/markdown\.js"[^>]*><\/script>\n?/gi,
@@ -507,6 +517,7 @@ function prerenderEntry(renderer, entry, { isPage = false } = {}) {
 
   html = upsertMetaDescription(html, description);
   html = ensureSitemapLink(html);
+  html = ensureFavicon(html);
   html = stripMarkdownScript(html);
   html = ensureSiteScript(html);
   html = upsertSocialMeta(html, {
@@ -679,6 +690,7 @@ function prerenderBlogIndex(indexData) {
   html = stripMarkdownScript(html);
   html = ensureSiteScript(html);
   html = ensureSitemapLink(html);
+  html = ensureFavicon(html);
   html = upsertSocialMeta(html, {
     title: `Blog | ${SITE_NAME}`,
     description: "Technology, security, and software engineering writing by Arash Afshar.",
@@ -702,6 +714,7 @@ function prerenderHome() {
   html = stripMarkdownScript(html);
   html = ensureSiteScript(html);
   html = ensureSitemapLink(html);
+  html = ensureFavicon(html);
   html = injectChrome(html);
   html = upsertSocialMeta(html, {
     title: "Arash Afshar | Applied Cryptographer",
