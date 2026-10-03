@@ -9,13 +9,23 @@
       content="Sign two real messages with the same WOTS key and watch how an observer forges others from the leaked chain nodes."
     >
     <link rel="canonical" href="https://arash-afshar.github.io/blog/wots-reuse/">
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
     <script src="/assets/theme-init.js"></script>
     <link rel="stylesheet" href="/assets/styles.css">
-    <link rel="stylesheet" href="/assets/wots/styles.css">
-    <link rel="stylesheet" href="/assets/wots-reuse/styles.css">
-    <script defer src="/assets/markdown.js"></script>
     <script defer src="/assets/site.js"></script>
-              <script type="application/ld+json" id="prerender-jsonld">
+<!-- prerender:social -->
+    <meta property="og:site_name" content="Technology and Security">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Why WOTS is one-time | Technology and Security">
+    <meta property="og:description" content="Sign two real messages with the same WOTS key and watch how an observer forges others from the leaked chain nodes.">
+    <meta property="og:url" content="https://arash-afshar.github.io/blog/wots-reuse/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Why WOTS is one-time | Technology and Security">
+    <meta name="twitter:description" content="Sign two real messages with the same WOTS key and watch how an observer forges others from the leaked chain nodes.">
+    <meta property="article:published_time" content="2026-10-01T09:30:00-06:00">
+<!-- /prerender:social -->
+<!-- prerender:jsonld -->
+    <script type="application/ld+json" id="prerender-jsonld">
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
@@ -24,6 +34,12 @@
   "datePublished": "2026-10-01T09:30:00-06:00",
   "url": "https://arash-afshar.github.io/blog/wots-reuse/",
   "mainEntityOfPage": "https://arash-afshar.github.io/blog/wots-reuse/",
+  "inLanguage": "en",
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "Technology and Security",
+    "url": "https://arash-afshar.github.io/blog/"
+  },
   "author": {
     "@type": "Person",
     "name": "Arash Afshar",
@@ -37,10 +53,35 @@
   "keywords": "post-quantum, signatures, interactive"
 }
     </script>
+<!-- /prerender:jsonld -->
 </head>
   <body data-post-slug="wots-reuse">
     <div class="site-shell" id="content-root">
-      <header class="site-header" id="site-header"></header>
+      <header class="site-header" id="site-header" data-prerendered="true">
+    <a class="brand" href="/">
+      <span class="brand-copy">
+        <span class="brand-title">Technology and Security</span>
+        <span class="brand-subtitle">Arash Afshar</span>
+      </span>
+    </a>
+    <div class="header-controls">
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/">Home</a>
+        <a href="/blog/">Blogs</a>
+        <a href="/about/">About</a>
+      </nav>
+      <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch theme">
+        <span class="theme-toggle-track" aria-hidden="true"></span>
+        <span class="theme-toggle-icon theme-toggle-icon--sun" aria-hidden="true">
+          <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.4"/><path d="M8 1.6v1.5M8 12.9v1.5M1.6 8h1.5M12.9 8h1.5M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1"/></svg>
+        </span>
+        <span class="theme-toggle-icon theme-toggle-icon--moon" aria-hidden="true">
+          <svg viewBox="0 0 16 16"><path fill="currentColor" stroke="none" d="M10.2 2.2a5.5 5.5 0 1 0 3.6 9.4A4.4 4.4 0 1 1 10.2 2.2z"/></svg>
+        </span>
+        <span class="theme-toggle-thumb" aria-hidden="true"></span>
+      </button>
+    </div>
+  </header>
       <main class="article-shell">
         <section class="article-header">
           <h1 id="article-title">Why WOTS is one-time</h1>
@@ -50,10 +91,24 @@
         <article class="markdown-body" id="article-body" data-prerendered="true">
 <p>WOTS is a <strong>one-time</strong> signing scheme: each signature reveals some information about the secret signing key. After signing two different messages under the same key, an observer can use what was revealed to forge signatures on <em>other</em> messages. See <a href="/blog/wots/">how WOTS works</a> for an interactive and step-by-step way of signing with WOTS and its "chains". Every signature publishes one hash node per chain; from that node upward to the public tip, anyone can recompute the rest with the public hash function. Those publicly reachable values are exactly what a forger needs. <strong>Why a single signature is still fine?</strong> Raising a message digit means revealing a <em>lower</em> node on that chain (hashing farther from the secret). An attacker who tries to forge a different message by hashing upward only increases digits. Since the checksum is defined as \(480 - \Sigma(\text{message digits})\), increasing any message digit <em>forces</em> the checksum digits down. To produce a valid signature for those smaller checksum digits, the attacker would need nodes <em>below</em> what the honest signature revealed on the checksum chains — and the hash function does not go backward. So one signature does not let you freely invent a new digit vector. <strong>Why two signatures break that?</strong> With two different messages you see two heights on each chain and keep the <strong>lower</strong> of the two. On every chain, the band from that leaked node up to the public tip is now public computation (teal in the demo below). Any new message whose digits — checksum included — all sit inside those bands is forgeable: the observer hashes upward from each leak to the required height and obtains a verifying signature, with no secret key. The demo uses the same keypair as the previous post. Grids 1–2 are the two honest signatures; grid 3 shows the leaked nodes and the public-upward bands; grid 4 lists ordinary-looking messages that clear those bands — click one to place the forged signature inside the teal region.</p>
 </article>
-        <section id="wots-reuse-demo" class="wots-demo" aria-label="WOTS key reuse demonstration"></section>
-      </main>
-      <footer class="site-footer" id="site-footer"></footer>
+        <section id="wots-reuse-demo" class="wots-demo" aria-label="WOTS key reuse demonstration">
+    <noscript>
+      <p class="wots-note">This page includes an interactive WOTS key-reuse demo that needs JavaScript. The article prose below is complete without it.</p>
+    </noscript>
+    <div class="wots-panel demo-placeholder" data-demo-placeholder>
+      <p class="wots-note">Loading interactive WOTS key-reuse demo…</p>
     </div>
-    <script type="module" src="/assets/wots-reuse/app.js"></script>
-  </body>
+  </section>
+      </main>
+      <footer class="site-footer" id="site-footer" data-prerendered="true">
+    <p>&copy; 2026 Technology and Security. Hosted on GitHub Pages.</p>
+  </footer>
+    </div>
+      <!-- prerender:demo-loader -->
+    <script type="module">
+      import { loadDemo } from "/assets/lazy-demo.js";
+      loadDemo("/assets/wots-reuse/app.js", "#wots-reuse-demo", ["/assets/wots/styles.css","/assets/wots-reuse/styles.css"]);
+    </script>
+<!-- /prerender:demo-loader -->
+</body>
 </html>

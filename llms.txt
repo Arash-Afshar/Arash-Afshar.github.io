@@ -7,7 +7,7 @@ Interactive posts run real in-browser traces (not diagrams). Prefer the canonica
 
 ## Hash-based signature series (interactive)
 
-- [WOTS hash chains](https://arash-afshar.github.io/blog/wots/): An interactive look at one real SHRINCS WOTS hash chain, with step-by-step traces and in-browser self-tests.
+- [WOTS hash chains](https://arash-afshar.github.io/blog/wots/): An interactive look at real SHRINCS WOTS-TW hash chains, with step-by-step signing traces in the browser.
 - [Why WOTS is one-time](https://arash-afshar.github.io/blog/wots-reuse/): Sign two real messages with the same WOTS key and watch an observer forge others from the leaked chain nodes.
 - [FORS hash forests](https://arash-afshar.github.io/blog/fors/): FORS is a few-time hash-based signature: a forest of Merkle trees, parameterized by k and a, stepped through in the browser.
 

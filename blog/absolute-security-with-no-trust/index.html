@@ -9,11 +9,23 @@
       content="A post about the promise and limits of absolute security without trusting third parties."
     >
     <link rel="canonical" href="https://arash-afshar.github.io/blog/absolute-security-with-no-trust/">
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
     <script src="/assets/theme-init.js"></script>
     <link rel="stylesheet" href="/assets/styles.css">
-    <script defer src="/assets/markdown.js"></script>
     <script defer src="/assets/site.js"></script>
-              <script type="application/ld+json" id="prerender-jsonld">
+<!-- prerender:social -->
+    <meta property="og:site_name" content="Technology and Security">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Absolute Security with No Trust | Technology and Security">
+    <meta property="og:description" content="A post about the promise and limits of absolute security without trusting third parties.">
+    <meta property="og:url" content="https://arash-afshar.github.io/blog/absolute-security-with-no-trust/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Absolute Security with No Trust | Technology and Security">
+    <meta name="twitter:description" content="A post about the promise and limits of absolute security without trusting third parties.">
+    <meta property="article:published_time" content="2019-05-05T07:00:00-07:00">
+<!-- /prerender:social -->
+<!-- prerender:jsonld -->
+    <script type="application/ld+json" id="prerender-jsonld">
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
@@ -22,6 +34,12 @@
   "datePublished": "2019-05-05T07:00:00-07:00",
   "url": "https://arash-afshar.github.io/blog/absolute-security-with-no-trust/",
   "mainEntityOfPage": "https://arash-afshar.github.io/blog/absolute-security-with-no-trust/",
+  "inLanguage": "en",
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "Technology and Security",
+    "url": "https://arash-afshar.github.io/blog/"
+  },
   "author": {
     "@type": "Person",
     "name": "Arash Afshar",
@@ -35,10 +53,35 @@
   "keywords": "security, theory"
 }
     </script>
+<!-- /prerender:jsonld -->
 </head>
   <body data-post-slug="absolute-security-with-no-trust">
     <div class="site-shell" id="content-root">
-      <header class="site-header" id="site-header"></header>
+      <header class="site-header" id="site-header" data-prerendered="true">
+    <a class="brand" href="/">
+      <span class="brand-copy">
+        <span class="brand-title">Technology and Security</span>
+        <span class="brand-subtitle">Arash Afshar</span>
+      </span>
+    </a>
+    <div class="header-controls">
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/">Home</a>
+        <a href="/blog/">Blogs</a>
+        <a href="/about/">About</a>
+      </nav>
+      <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch theme">
+        <span class="theme-toggle-track" aria-hidden="true"></span>
+        <span class="theme-toggle-icon theme-toggle-icon--sun" aria-hidden="true">
+          <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.4"/><path d="M8 1.6v1.5M8 12.9v1.5M1.6 8h1.5M12.9 8h1.5M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1"/></svg>
+        </span>
+        <span class="theme-toggle-icon theme-toggle-icon--moon" aria-hidden="true">
+          <svg viewBox="0 0 16 16"><path fill="currentColor" stroke="none" d="M10.2 2.2a5.5 5.5 0 1 0 3.6 9.4A4.4 4.4 0 1 1 10.2 2.2z"/></svg>
+        </span>
+        <span class="theme-toggle-thumb" aria-hidden="true"></span>
+      </button>
+    </div>
+  </header>
       <main class="article-shell">
         <section class="article-header">
           <h1 id="article-title">Absolute Security with No Trust</h1>
@@ -89,7 +132,9 @@ bad_encrypt("101010", "100101")
 <p>At this point, you might be wondering why are we even bothering with theoretical security! Well, the picture that I painted so far was an extreme case to make a point about the importance of security in all aspects of software development and also to point out that high level of security is not cheap and in the vast majority of cases you pay it through more computation or more memory/network usage. The solution is research on making theoretical approaches more efficient and to find reasonable compromises on practical security. In the past few decades, there have been significant researches that are bringing us <a href="https://eprint.iacr.org/2018/450.pdf" target="_blank" rel="noreferrer">closer</a> to an efficient and reasonable theoretical and practical security. In my PhD thesis, I have done a small part in furthering such research (<a href="https://link.springer.com/content/pdf/10.1007/978-3-642-55220-5_22.pdf" target="_blank" rel="noreferrer">AMPR14</a>, <a href="https://link.springer.com/content/pdf/10.1007/978-3-662-46800-5_27.pdf" target="_blank" rel="noreferrer">AHMR15</a>, <a href="https://eprint.iacr.org/2017/062.pdf" target="_blank" rel="noreferrer">AMR17</a>) in the field of "Secure Multiparty Computation" and I believe it is one the most promising fields. In my future blog posts, I will introduce this field from the point of view of a Software Engineer with the goal of encouraging other Software Engineers to adapt and use the results of the amazing research that is being done in this field.</p>
 </article>
       </main>
-      <footer class="site-footer" id="site-footer"></footer>
+      <footer class="site-footer" id="site-footer" data-prerendered="true">
+    <p>&copy; 2026 Technology and Security. Hosted on GitHub Pages.</p>
+  </footer>
     </div>
   </body>
 </html>

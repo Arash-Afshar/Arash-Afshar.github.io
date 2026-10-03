@@ -25,7 +25,7 @@
       "title": "WOTS hash chains",
       "date": "2026-09-30T10:00:00-06:00",
       "tags": ["post-quantum", "signatures", "interactive"],
-      "summary": "An interactive look at one real SHRINCS WOTS hash chain, with step-by-step traces and in-browser self-tests.",
+      "summary": "An interactive look at real SHRINCS WOTS-TW hash chains, with step-by-step signing traces in the browser.",
       "description": "Sign a message with WOTS-TW and step through real hash chains: digits, checksum, signatures, and public tips.",
       "url": "/blog/wots/",
       "contentPath": "/content/posts/wots.md"

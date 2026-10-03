@@ -172,6 +172,38 @@ async function loadMarkdown(path) {
   return response.text();
 }
 
+function isPrerendered(element) {
+  return Boolean(element?.dataset?.prerendered === "true");
+}
+
+async function ensureMarkdownRenderer() {
+  if (window.MarkdownRenderer?.render) {
+    return window.MarkdownRenderer;
+  }
+
+  await new Promise((resolve, reject) => {
+    const existing = document.querySelector('script[src="/assets/markdown.js"]');
+    if (existing) {
+      existing.addEventListener("load", () => resolve(), { once: true });
+      existing.addEventListener("error", () => reject(new Error("markdown.js failed")), {
+        once: true,
+      });
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "/assets/markdown.js";
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Failed to load markdown.js"));
+    document.head.appendChild(script);
+  });
+
+  if (!window.MarkdownRenderer?.render) {
+    throw new Error("Markdown renderer is unavailable.");
+  }
+  return window.MarkdownRenderer;
+}
+
 function setDocumentMeta({ title, description }) {
   document.title = title ? `${title} | ${SITE_CONFIG.title}` : SITE_CONFIG.title;
   const descriptionTag = document.querySelector('meta[name="description"]');
@@ -207,6 +239,10 @@ function renderPostList(posts) {
     return;
   }
 
+  if (isPrerendered(target) && target.children.length) {
+    return;
+  }
+
   if (!posts.length) {
     target.innerHTML = '<p class="empty-state">No posts are available yet.</p>';
     return;
@@ -235,6 +271,11 @@ async function renderBlogIndex(indexData) {
     description: SITE_CONFIG.description,
   });
 
+  const list = byId("post-list");
+  if (isPrerendered(list) && list.children.length) {
+    return;
+  }
+
   const posts = indexData.posts
     .slice()
     .sort((left, right) => new Date(right.date) - new Date(left.date));
@@ -252,8 +293,18 @@ async function renderMarkdownPage(entry) {
     return;
   }
 
+  // Static HTML already contains the article for crawlers and first paint.
+  if (isPrerendered(articleBody) && articleBody.childNodes.length) {
+    setDocumentMeta({
+      title: entry.title,
+      description: entry.description || SITE_CONFIG.description,
+    });
+    return;
+  }
+
   const markdown = await loadMarkdown(entry.contentPath);
-  const html = window.MarkdownRenderer.render(markdown);
+  const renderer = await ensureMarkdownRenderer();
+  const html = renderer.render(markdown);
 
   if (articleTitle) {
     articleTitle.textContent = entry.title;
@@ -305,13 +356,24 @@ async function bootstrap() {
   const pageId = document.body.dataset.pageId;
   const isBlogIndex = document.body.dataset.blogIndex === "true";
   const isHome = document.body.dataset.home === "true";
-  const needsContentIndex = isBlogIndex || Boolean(postSlug) || Boolean(pageId);
+  const articleBody = byId("article-body");
+  const postList = byId("post-list");
 
   if (isHome) {
     renderHome();
     return;
   }
 
+  // Prefer the prerendered HTML path: no content-index / markdown fetch on the
+  // critical path when the article or blog list is already in the document.
+  if (isBlogIndex && isPrerendered(postList) && postList.children.length) {
+    return;
+  }
+  if ((postSlug || pageId) && isPrerendered(articleBody) && articleBody.childNodes.length) {
+    return;
+  }
+
+  const needsContentIndex = isBlogIndex || Boolean(postSlug) || Boolean(pageId);
   if (!needsContentIndex) {
     return;
   }

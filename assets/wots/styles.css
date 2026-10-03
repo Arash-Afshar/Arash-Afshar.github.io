@@ -15,6 +15,13 @@
   --wots-gap: 4px;
   font-family: var(--font-body, "JetBrainsMono Nerd Font", ui-monospace, monospace);
   color: var(--wots-text);
+  min-height: 12rem;
+}
+
+.wots-demo .demo-placeholder {
+  min-height: 10rem;
+  display: grid;
+  align-content: center;
 }
 
 .wots-demo h1 {

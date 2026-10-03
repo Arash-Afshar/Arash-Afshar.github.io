@@ -9,13 +9,23 @@
       content="In contrast to one-time WOTS, FORS lets you sign a few times. Walk indexes, secrets, auth paths, and the public key in an interactive forest."
     >
     <link rel="canonical" href="https://arash-afshar.github.io/blog/fors/">
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
     <script src="/assets/theme-init.js"></script>
     <link rel="stylesheet" href="/assets/styles.css">
-    <link rel="stylesheet" href="/assets/wots/styles.css">
-    <link rel="stylesheet" href="/assets/fors/styles.css">
-    <script defer src="/assets/markdown.js"></script>
     <script defer src="/assets/site.js"></script>
-              <script type="application/ld+json" id="prerender-jsonld">
+<!-- prerender:social -->
+    <meta property="og:site_name" content="Technology and Security">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="FORS hash forests | Technology and Security">
+    <meta property="og:description" content="In contrast to one-time WOTS, FORS lets you sign a few times. Walk indexes, secrets, auth paths, and the public key in an interactive forest.">
+    <meta property="og:url" content="https://arash-afshar.github.io/blog/fors/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="FORS hash forests | Technology and Security">
+    <meta name="twitter:description" content="In contrast to one-time WOTS, FORS lets you sign a few times. Walk indexes, secrets, auth paths, and the public key in an interactive forest.">
+    <meta property="article:published_time" content="2026-10-02T09:00:00-06:00">
+<!-- /prerender:social -->
+<!-- prerender:jsonld -->
+    <script type="application/ld+json" id="prerender-jsonld">
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
@@ -24,6 +34,12 @@
   "datePublished": "2026-10-02T09:00:00-06:00",
   "url": "https://arash-afshar.github.io/blog/fors/",
   "mainEntityOfPage": "https://arash-afshar.github.io/blog/fors/",
+  "inLanguage": "en",
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "Technology and Security",
+    "url": "https://arash-afshar.github.io/blog/"
+  },
   "author": {
     "@type": "Person",
     "name": "Arash Afshar",
@@ -37,25 +53,64 @@
   "keywords": "post-quantum, signatures, interactive"
 }
     </script>
+<!-- /prerender:jsonld -->
 </head>
   <body data-post-slug="fors">
     <div class="site-shell" id="content-root">
-      <header class="site-header" id="site-header"></header>
+      <header class="site-header" id="site-header" data-prerendered="true">
+    <a class="brand" href="/">
+      <span class="brand-copy">
+        <span class="brand-title">Technology and Security</span>
+        <span class="brand-subtitle">Arash Afshar</span>
+      </span>
+    </a>
+    <div class="header-controls">
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/">Home</a>
+        <a href="/blog/">Blogs</a>
+        <a href="/about/">About</a>
+      </nav>
+      <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch theme">
+        <span class="theme-toggle-track" aria-hidden="true"></span>
+        <span class="theme-toggle-icon theme-toggle-icon--sun" aria-hidden="true">
+          <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.4"/><path d="M8 1.6v1.5M8 12.9v1.5M1.6 8h1.5M12.9 8h1.5M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1"/></svg>
+        </span>
+        <span class="theme-toggle-icon theme-toggle-icon--moon" aria-hidden="true">
+          <svg viewBox="0 0 16 16"><path fill="currentColor" stroke="none" d="M10.2 2.2a5.5 5.5 0 1 0 3.6 9.4A4.4 4.4 0 1 1 10.2 2.2z"/></svg>
+        </span>
+        <span class="theme-toggle-thumb" aria-hidden="true"></span>
+      </button>
+    </div>
+  </header>
       <main class="article-shell">
         <section class="article-header">
           <h1 id="article-title">FORS hash forests</h1>
           <p class="article-description" id="article-description">In contrast to one-time WOTS, FORS lets you sign a few times. Walk indexes, secrets, auth paths, and the public key in an interactive forest.</p>
           <div class="post-meta" id="article-meta"><span>October 2, 2026</span><span class="pill">post-quantum</span><span class="pill">signatures</span><span class="pill">interactive</span></div>
         </section>
-        <section id="fors-demo" class="wots-demo fors-demo" aria-label="Interactive FORS forest"></section>
+        <section id="fors-demo" class="wots-demo fors-demo" aria-label="Interactive FORS forest">
+    <noscript>
+      <p class="wots-note">This page includes an interactive FORS forest demo that needs JavaScript. The article prose below is complete without it.</p>
+    </noscript>
+    <div class="wots-panel demo-placeholder" data-demo-placeholder>
+      <p class="wots-note">Loading interactive FORS forest demo…</p>
+    </div>
+  </section>
         <article class="markdown-body" id="article-body" data-prerendered="true">
 <p>In contrast to <a href="/blog/wots/">WOTS</a>, which is a <strong>one-time</strong> signature, <strong>FORS</strong> (Forest of Random Subsets) is a <strong>few-time</strong> scheme: you can safely sign more than once with the same key, as long as you stay within a budget the parameters were chosen for. See <a href="/blog/wots-reuse/">why WOTS cannot be reused</a> for the one-time side of that tradeoff. A FORS keypair is a <em>forest</em> of Merkle trees. Two parameters set its shape:</p>
 <ul><li><strong><code>k</code></strong> — how many trees are in the forest (and how many leaves a signature reveals).</li><li><strong><code>a</code></strong> — the height of each tree, so each tree has 2<sup>a</sup> leaves.</li></ul>
 <p>The public key is a hash of all <code>k</code> tree roots. Secrets live at the leaves: each leaf is the hash of a private preimage. To sign, hash the message into <code>k</code> indexes of <code>a</code> bits each. Index <code>i</code> picks one leaf in tree <code>i</code>. The signature publishes that leaf’s secret preimage together with the Merkle authentication path up to the root. The verifier hashes the preimage into a leaf, climbs the path to rebuild each root, then checks that those roots compress to the public key. So where WOTS walks <em>along</em> hash chains, FORS <em>selects</em> leaves in a forest and proves they belong under published roots. Larger <code>k</code> and <code>a</code> mean more leaves to choose from — and more room to sign a few messages before the revealed set gets dangerous. The demo above uses a small forest (<code>k=4</code>, <code>a=3</code>) so every node fits on screen; step through with <strong>Next</strong> / <strong>Prev</strong> (or <strong>Play</strong>).</p>
 </article>
       </main>
-      <footer class="site-footer" id="site-footer"></footer>
+      <footer class="site-footer" id="site-footer" data-prerendered="true">
+    <p>&copy; 2026 Technology and Security. Hosted on GitHub Pages.</p>
+  </footer>
     </div>
-    <script type="module" src="/assets/fors/app.js"></script>
-  </body>
+      <!-- prerender:demo-loader -->
+    <script type="module">
+      import { loadDemo } from "/assets/lazy-demo.js";
+      loadDemo("/assets/fors/app.js", "#fors-demo", ["/assets/wots/styles.css","/assets/fors/styles.css"]);
+    </script>
+<!-- /prerender:demo-loader -->
+</body>
 </html>
