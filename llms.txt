@@ -15,7 +15,7 @@ Interactive posts run real in-browser traces (not diagrams). Prefer the canonica
 
 - [Source code to pdf](https://arash-afshar.github.io/blog/source-code-to-pdf/): A small command-line recipe for turning source trees into highlighted PDF documents.
 - [Secure Machine Learning](https://arash-afshar.github.io/blog/secure-ml/): An overview of how secure multiparty computation and privacy techniques can be applied to machine learning systems.
-- [MPC Part 1: Oblivious Transfer](https://arash-afshar.github.io/blog/oblivious-transfer/): A practical introduction to oblivious transfer through a privacy-preserving weather application.
+- [Oblivious Transfer](https://arash-afshar.github.io/blog/oblivious-transfer/): A practical introduction to oblivious transfer through a privacy-preserving weather application.
 - [Absolute Security with No Trust](https://arash-afshar.github.io/blog/absolute-security-with-no-trust/): A discussion of information-theoretic security and the practical trade-offs behind absolute security claims.
 
 ## Pages
