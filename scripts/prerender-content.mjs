@@ -37,6 +37,11 @@ const DEMO_LOADERS = {
     mount: "#wots-reuse-demo",
     stylesheets: ["/assets/wots/styles.css", "/assets/wots-reuse/styles.css"],
   },
+  xmss: {
+    module: "/assets/xmss/app.js",
+    mount: "#xmss-demo",
+    stylesheets: ["/assets/wots/styles.css", "/assets/xmss/styles.css"],
+  },
 };
 
 function loadMarkdownRenderer() {
@@ -357,6 +362,65 @@ function demoShell(slug) {
     </div>`;
   }
 
+  if (slug === "xmss") {
+    return `${demoNoscript("XMSS Merkle-tree demo")}
+    <div class="wots-panel">
+      <div id="xmss-message-anchor" class="wots-message-anchor">
+        <div class="wots-message-form">
+          <label class="wots-field">
+            <span>Message</span>
+            <input id="msg-input" type="text" spellcheck="false"
+              placeholder="Any text (hashed to 16 bytes), or 32 hex chars"
+              value="A Sample Message to Sign">
+          </label>
+          <label class="wots-field xmss-idx-field">
+            <span>Leaf idx</span>
+            <select id="leaf-input">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2" selected>2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+            </select>
+          </label>
+          <button type="button" id="btn-sign">Sign</button>
+          <button type="button" id="btn-example">Example</button>
+        </div>
+        <p class="wots-note" id="msg-hint">
+          Text → SHA-256 truncated to 16 bytes. Leaf index is the stateful counter (0…7).
+        </p>
+      </div>
+      <div class="wots-controls">
+        <button type="button" id="btn-prev-phase" disabled>⟵ Phase</button>
+        <button type="button" id="btn-prev" disabled>Prev</button>
+        <button type="button" id="btn-next" disabled>Next</button>
+        <button type="button" id="btn-next-phase" disabled>Phase ⟶</button>
+        <button type="button" id="btn-play" disabled>Play</button>
+        <button type="button" id="btn-pause" disabled>Pause</button>
+        <button type="button" id="btn-reset" disabled>Reset</button>
+        <label>
+          Step ms
+          <input id="speed" type="number" min="40" max="2000" step="20" value="160">
+        </label>
+      </div>
+      <p id="status" data-demo-placeholder>Loading interactive XMSS Merkle-tree demo…</p>
+      <p class="wots-note wots-shortcuts">Keys: <kbd>Space</kbd> play/pause · <kbd>←</kbd>/<kbd>→</kbd> step · <kbd>P</kbd>/<kbd>N</kbd> phase</p>
+      <div id="narration-root" class="demo-narration-slot"></div>
+      <div id="overview-root" class="demo-overview-slot demo-overview-slot--xmss" aria-busy="true"></div>
+    </div>
+    <div class="wots-panel">
+      <h2 class="section-title demo-key-title">Key material</h2>
+      <p class="wots-note">
+        Fixed demo seeds (same as the WOTS posts). Leaves are real SHRINCS WOTS-TW public keys
+        compressed with <code>T_sl</code>; parents use tweakable <code>H</code>.
+      </p>
+      <dl id="seed-info"></dl>
+    </div>`;
+  }
+
   if (slug === "wots-reuse") {
     return `${demoNoscript("WOTS key-reuse demo")}
     <div class="wots-panel">
@@ -452,7 +516,7 @@ function ensureDemoMount(html, slug) {
     </script>\n`;
 
   html = html.replace(
-    /<script type="module"[^>]*src="\/assets\/(?:wots|fors|wots-reuse)\/app\.js"[^>]*><\/script>\n?/gi,
+    /<script type="module"[^>]*src="\/assets\/(?:wots|fors|wots-reuse|xmss)\/app\.js"[^>]*><\/script>\n?/gi,
     ""
   );
   html = html.replace(

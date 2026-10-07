@@ -1,6 +1,16 @@
 {
   "posts": [
     {
+      "slug": "xmss",
+      "title": "XMSS Merkle trees",
+      "date": "2026-10-06T12:00:00-06:00",
+      "tags": ["post-quantum", "signatures", "interactive"],
+      "summary": "XMSS turns many one-time WOTS keys into one many-time verifying key: a Merkle tree, a leaf index, and an authentication path.",
+      "description": "Walk an XMSS Merkle tree of real WOTS-TW leaves: build the root, spend one leaf, publish the auth path, and verify the climb.",
+      "url": "/blog/xmss/",
+      "contentPath": "/content/posts/xmss.md"
+    },
+    {
       "slug": "fors",
       "title": "FORS hash forests",
       "date": "2026-10-02T09:00:00-06:00",

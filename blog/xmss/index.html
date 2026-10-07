@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>XMSS Merkle trees | Technology and Security</title>
+    <meta
+      name="description"
+      content="Walk an XMSS Merkle tree of real WOTS-TW leaves: build the root, spend one leaf, publish the auth path, and verify the climb."
+    >
+    <link rel="canonical" href="https://arash-afshar.github.io/blog/xmss/">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
+    <script src="/assets/theme-init.js"></script>
+    <link rel="stylesheet" href="/assets/styles.css">
+    <link rel="stylesheet" href="/assets/wots/styles.css">
+    <link rel="stylesheet" href="/assets/xmss/styles.css">
+    <script defer src="/assets/site.js"></script>
+  <!-- prerender:social -->
+    <meta property="og:site_name" content="Technology and Security">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="XMSS Merkle trees | Technology and Security">
+    <meta property="og:description" content="Walk an XMSS Merkle tree of real WOTS-TW leaves: build the root, spend one leaf, publish the auth path, and verify the climb.">
+    <meta property="og:url" content="https://arash-afshar.github.io/blog/xmss/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="XMSS Merkle trees | Technology and Security">
+    <meta name="twitter:description" content="Walk an XMSS Merkle tree of real WOTS-TW leaves: build the root, spend one leaf, publish the auth path, and verify the climb.">
+    <meta property="article:published_time" content="2026-10-06T12:00:00-06:00">
+<!-- /prerender:social -->
+<!-- prerender:jsonld -->
+    <script type="application/ld+json" id="prerender-jsonld">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "XMSS Merkle trees",
+  "description": "Walk an XMSS Merkle tree of real WOTS-TW leaves: build the root, spend one leaf, publish the auth path, and verify the climb.",
+  "datePublished": "2026-10-06T12:00:00-06:00",
+  "url": "https://arash-afshar.github.io/blog/xmss/",
+  "mainEntityOfPage": "https://arash-afshar.github.io/blog/xmss/",
+  "inLanguage": "en",
+  "isPartOf": {
+    "@type": "Blog",
+    "name": "Technology and Security",
+    "url": "https://arash-afshar.github.io/blog/"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Arash Afshar",
+    "url": "https://arash-afshar.github.io"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Arash Afshar",
+    "url": "https://arash-afshar.github.io"
+  },
+  "keywords": "post-quantum, signatures, interactive"
+}
+    </script>
+<!-- /prerender:jsonld -->
+</head>
+  <body data-post-slug="xmss">
+    <div class="site-shell" id="content-root">
+      <header class="site-header" id="site-header" data-prerendered="true">
+    <a class="brand" href="/">
+      <span class="brand-copy">
+        <span class="brand-title">Technology and Security</span>
+        <span class="brand-subtitle">Arash Afshar</span>
+      </span>
+    </a>
+    <div class="header-controls">
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/">Home</a>
+        <a href="/blog/">Blogs</a>
+        <a href="/about/">About</a>
+      </nav>
+      <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch theme">
+        <span class="theme-toggle-track" aria-hidden="true"></span>
+        <span class="theme-toggle-icon theme-toggle-icon--sun" aria-hidden="true">
+          <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.4"/><path d="M8 1.6v1.5M8 12.9v1.5M1.6 8h1.5M12.9 8h1.5M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M12.6 3.4l-1.1 1.1M4.5 11.5l-1.1 1.1"/></svg>
+        </span>
+        <span class="theme-toggle-icon theme-toggle-icon--moon" aria-hidden="true">
+          <svg viewBox="0 0 16 16"><path fill="currentColor" stroke="none" d="M10.2 2.2a5.5 5.5 0 1 0 3.6 9.4A4.4 4.4 0 1 1 10.2 2.2z"/></svg>
+        </span>
+        <span class="theme-toggle-thumb" aria-hidden="true"></span>
+      </button>
+    </div>
+  </header>
+      <main class="article-shell">
+        <section class="article-header">
+          <h1 id="article-title">XMSS Merkle trees</h1>
+          <p class="article-description" id="article-description">Walk an XMSS Merkle tree of real WOTS-TW leaves: build the root, spend one leaf, publish the auth path, and verify the climb.</p>
+          <div class="post-meta" id="article-meta"><span>October 6, 2026</span><span class="pill">post-quantum</span><span class="pill">signatures</span><span class="pill">interactive</span></div>
+        </section>
+        <section id="xmss-demo" class="wots-demo xmss-demo" aria-label="Interactive XMSS Merkle tree">
+    <noscript>
+      <p class="wots-note">This page includes an interactive XMSS Merkle-tree demo that needs JavaScript. The article prose below is complete without it.</p>
+    </noscript>
+    <div class="wots-panel">
+      <div id="xmss-message-anchor" class="wots-message-anchor">
+        <div class="wots-message-form">
+          <label class="wots-field">
+            <span>Message</span>
+            <input id="msg-input" type="text" spellcheck="false"
+              placeholder="Any text (hashed to 16 bytes), or 32 hex chars"
+              value="A Sample Message to Sign">
+          </label>
+          <label class="wots-field xmss-idx-field">
+            <span>Leaf idx</span>
+            <select id="leaf-input">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2" selected>2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+            </select>
+          </label>
+          <button type="button" id="btn-sign">Sign</button>
+          <button type="button" id="btn-example">Example</button>
+        </div>
+        <p class="wots-note" id="msg-hint">
+          Text → SHA-256 truncated to 16 bytes. Leaf index is the stateful counter (0…7).
+        </p>
+      </div>
+      <div class="wots-controls">
+        <button type="button" id="btn-prev-phase" disabled>⟵ Phase</button>
+        <button type="button" id="btn-prev" disabled>Prev</button>
+        <button type="button" id="btn-next" disabled>Next</button>
+        <button type="button" id="btn-next-phase" disabled>Phase ⟶</button>
+        <button type="button" id="btn-play" disabled>Play</button>
+        <button type="button" id="btn-pause" disabled>Pause</button>
+        <button type="button" id="btn-reset" disabled>Reset</button>
+        <label>
+          Step ms
+          <input id="speed" type="number" min="40" max="2000" step="20" value="160">
+        </label>
+      </div>
+      <p id="status" data-demo-placeholder>Loading interactive XMSS Merkle-tree demo…</p>
+      <p class="wots-note wots-shortcuts">Keys: <kbd>Space</kbd> play/pause · <kbd>←</kbd>/<kbd>→</kbd> step · <kbd>P</kbd>/<kbd>N</kbd> phase</p>
+      <div id="narration-root" class="demo-narration-slot"></div>
+      <div id="overview-root" class="demo-overview-slot demo-overview-slot--xmss" aria-busy="true"></div>
+    </div>
+    <div class="wots-panel">
+      <h2 class="section-title demo-key-title">Key material</h2>
+      <p class="wots-note">
+        Fixed demo seeds (same as the WOTS posts). Leaves are real SHRINCS WOTS-TW public keys
+        compressed with <code>T_sl</code>; parents use tweakable <code>H</code>.
+      </p>
+      <dl id="seed-info"></dl>
+    </div></section>
+        <article class="markdown-body" id="article-body" data-prerendered="true">
+<p><a href="/blog/wots/">WOTS</a> gives you a <strong>one-time</strong> signature. <a href="/blog/wots-reuse/">Reuse it twice</a> and forgeries follow. <strong>XMSS</strong> (eXtended Merkle Signature Scheme) is how you turn many WOTS keys into a single many-time verifying key: hang one WOTS public key under each leaf of a Merkle tree, publish the root, and never spend the same leaf twice. Two parameters set the shape:</p>
+<ul><li><strong><code>h</code></strong> — tree height, so there are 2<sup>h</sup> leaves (and at most that many signatures).</li><li>Each leaf is one WOTS instance — chains, digits, and checksum as in the earlier posts.</li></ul>
+<p>To sign, take the next unused leaf index <code>idx</code>, produce a WOTS signature under that leaf’s key, and publish the Merkle <strong>authentication path</strong>: the sibling of every node on the climb from that leaf to the root. The verifier rebuilds the WOTS public key from the signature, hashes up the path, and checks that the recomputed root matches the XMSS public key. So where WOTS walks <em>along</em> hash chains, XMSS also walks <em>up</em> a tree: the one-time signature opens one leaf; the path proves that leaf was in the committed set. The scheme is <strong>stateful</strong> — the signer must advance <code>idx</code> and never restore a spent counter — because a reused leaf is just WOTS reuse with a Merkle proof attached. The demo above builds a small tree (<code>h=3</code>, eight WOTS leaves) so every node fits on screen. Step through key generation, a signature with its authentication path, and verification with <strong>Next</strong> / <strong>Prev</strong> (or <strong>Play</strong>).</p>
+</article>
+      </main>
+      <footer class="site-footer" id="site-footer" data-prerendered="true">
+    <p>&copy; 2026 Technology and Security. Hosted on GitHub Pages.</p>
+  </footer>
+    </div>
+  <!-- prerender:demo-loader -->
+    <script type="module">
+      import { loadDemo } from "/assets/lazy-demo.js";
+      loadDemo("/assets/xmss/app.js", "#xmss-demo");
+    </script>
+<!-- /prerender:demo-loader -->
+</body>
+</html>

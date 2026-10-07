@@ -1,0 +1,164 @@
+/* XMSS tree visualization — chrome comes from /assets/wots/styles.css */
+
+.xmss-demo .xmss-phase-bar {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.xmss-wrap {
+  margin-top: 0.15rem;
+}
+
+.xmss-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem 1.2rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.68rem;
+  color: var(--wots-muted);
+}
+
+.xmss-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--wots-border);
+  background: var(--wots-code);
+  vertical-align: middle;
+  margin-right: 0.25rem;
+}
+
+.xmss-swatch--leaf {
+  border-color: var(--wots-warm);
+  background: rgba(201, 165, 84, 0.85);
+}
+
+.xmss-swatch--spent {
+  border-color: #c4785a;
+  background: rgba(196, 120, 90, 0.85);
+}
+
+.xmss-swatch--sib {
+  border-color: #6a9a9a;
+  background: rgba(106, 154, 154, 0.45);
+}
+
+.xmss-swatch--path {
+  border-color: var(--wots-accent);
+  background: rgba(120, 130, 75, 0.4);
+}
+
+.xmss-swatch--focus {
+  border-color: var(--wots-warm);
+  box-shadow: 0 0 0 1px rgba(201, 165, 84, 0.45);
+}
+
+.xmss-tree {
+  border: 1px solid var(--wots-border);
+  border-radius: 10px;
+  padding: 0.75rem 0.65rem 0.55rem;
+  background: var(--inset);
+  max-width: 36rem;
+  margin: 0 auto;
+}
+
+.xmss-tree-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.35rem;
+  margin-bottom: 0.65rem;
+  font-size: 0.78rem;
+}
+
+.xmss-tree-head strong {
+  color: var(--wots-warm);
+}
+
+.xmss-muted {
+  color: var(--wots-muted);
+}
+
+.xmss-tree-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.xmss-level {
+  display: grid;
+  grid-template-columns: repeat(var(--xmss-level-count), minmax(0, 1fr));
+  gap: 3px;
+}
+
+.xmss-node {
+  min-width: 0;
+  height: 1.55rem;
+  padding: 0;
+  border: 1px solid var(--wots-border);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--wots-faint);
+  font: inherit;
+  font-size: 0.58rem;
+  cursor: default;
+}
+
+.xmss-node span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 1px;
+}
+
+.xmss-node.is-shown {
+  color: var(--wots-text);
+  background: rgba(120, 130, 75, 0.12);
+}
+
+.xmss-node.is-leaf {
+  border-color: var(--wots-warm);
+  color: var(--wots-warm);
+  background: rgba(201, 165, 84, 0.18);
+}
+
+.xmss-node.is-spent {
+  border-color: #c4785a;
+  color: #e8a88a;
+  background: rgba(196, 120, 90, 0.22);
+}
+
+.xmss-node.is-sib {
+  border-color: #6a9a9a;
+  color: var(--wots-text);
+  background: rgba(106, 154, 154, 0.28);
+}
+
+.xmss-node.is-path {
+  border-color: var(--wots-accent);
+  color: var(--wots-text);
+  background: rgba(120, 130, 75, 0.28);
+}
+
+.xmss-node.is-focus {
+  box-shadow: 0 0 0 1px rgba(201, 165, 84, 0.55);
+}
+
+.xmss-tree-foot {
+  margin-top: 0.5rem;
+  font-size: 0.65rem;
+  text-align: center;
+}
+
+.xmss-demo .wots-message-form {
+  flex-wrap: wrap;
+}
+
+.xmss-demo .xmss-idx-field {
+  min-width: 5.5rem;
+}
+
+@media (max-width: 640px) {
+  .xmss-demo .xmss-phase-bar {
+    grid-template-columns: 1fr 1fr;
+  }
+}

@@ -190,6 +190,39 @@ export function makeStatelessWotsAddress({
 }
 
 /**
+ * WOTS-TW public-key compression address: type SL_WOTS_TW_PK, word1=keypair.
+ */
+export function makeWotsPkAddress({
+  layer = 0,
+  treeAddress = 0,
+  keypairIndex = 0,
+} = {}) {
+  return new Address()
+    .setLayer(layer)
+    .setTreeAddress(treeAddress)
+    .setType(ADRS_TYPES.SL_WOTS_TW_PK)
+    .setKeypairIndex(keypairIndex);
+}
+
+/**
+ * XMSS Merkle-tree hash address: type SL_XMSS_TREE.
+ * word2=tree_height, word3=tree_index (SPHINCS+/SHRINCS layout).
+ */
+export function makeXmssTreeAddress({
+  layer = 0,
+  treeAddress = 0,
+  treeHeight = 0,
+  treeIndex = 0,
+} = {}) {
+  return new Address()
+    .setLayer(layer)
+    .setTreeAddress(treeAddress)
+    .setType(ADRS_TYPES.SL_XMSS_TREE)
+    .setChainIndex(treeHeight)
+    .setHashIndex(treeIndex);
+}
+
+/**
  * FORS PRF address: type SL_FORS_PRF, word1=keypair, word3=forest-wide leaf index.
  */
 export function makeForsPrfAddress({
