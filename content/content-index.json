@@ -85,7 +85,7 @@
     {
       "id": "about",
       "title": "About",
-      "description": "",
+      "description": "Arash Afshar is a Senior Staff Applied Cryptographer at Coinbase, specializing in MPC, zero-knowledge proofs, and threshold cryptography.",
       "url": "/about/",
       "contentPath": "/content/pages/about.md"
     }

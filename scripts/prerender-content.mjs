@@ -666,11 +666,17 @@ Sitemap: ${SITE_ORIGIN}/sitemap.xml
 }
 
 function writeSitemap(indexData) {
+  const newestPostDate = indexData.posts
+    .map((post) => (post.date ? post.date.slice(0, 10) : null))
+    .filter(Boolean)
+    .sort()
+    .at(-1);
   const urls = [
-    { loc: `${SITE_ORIGIN}/`, priority: "1.0" },
-    { loc: `${SITE_ORIGIN}/blog/`, priority: "0.9" },
+    { loc: `${SITE_ORIGIN}/`, lastmod: newestPostDate, priority: "1.0" },
+    { loc: `${SITE_ORIGIN}/blog/`, lastmod: newestPostDate, priority: "0.9" },
     ...indexData.pages.map((page) => ({
       loc: `${SITE_ORIGIN}${page.url}`,
+      lastmod: page.date ? page.date.slice(0, 10) : newestPostDate,
       priority: "0.6",
     })),
     ...indexData.posts.map((post) => ({
